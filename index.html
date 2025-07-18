@@ -7,48 +7,13 @@
         <link rel="stylesheet" href="./style.css" />
     </head>
     <body>
-        <header>
-            <div class="container">
-                <div class="header-content">
-                    <a href="/index.html" class="logo" onclick="showHome()"
-                        >Sam Nart</a
-                    >
-                    <nav>
-                        <a href="#" onclick="showHome()">Home</a>
-                        <a href="#" onclick="showArticles()">Articles</a>
-                        <a href="#" onclick="showBlog()">Blog</a>
-                        <button class="theme-toggle" onclick="toggleTheme()">
-                            🌙
-                        </button>
-                    </nav>
-                    <button
-                        class="mobile-menu-btn"
-                        onclick="toggleMobileMenu()"
-                    >
-                        ☰
-                    </button>
-                </div>
-                <div class="mobile-nav" id="mobileNav">
-                    <a href="#" onclick="showHome(); toggleMobileMenu()"
-                        >Home</a
-                    >
-                    <a href="#" onclick="showArticles(); toggleMobileMenu()"
-                        >Articles</a
-                    >
-                    <a href="#" onclick="showBlog(); toggleMobileMenu()"
-                        >Blog</a
-                    >
-                    <button class="theme-toggle" onclick="toggleTheme()">
-                        🌙
-                    </button>
-                </div>
-            </div>
-        </header>
+        <!-- Navbar Container -->
+        <div id="navbar-container"></div>
 
         <main>
             <div class="container">
                 <!-- Home Page -->
-                <div id="home" class="home-container">
+                <div class="home-container">
                     <div class="hero">
                         <h1>Code & Projects</h1>
                         <p>
@@ -58,19 +23,28 @@
                     </div>
 
                     <div class="tech-grid">
-                        <div class="tech-card" onclick="showProjects('java')">
+                        <div
+                            class="tech-card"
+                            onclick="window.location.href='./java-projects.html'"
+                        >
                             <div class="tech-icon">☕</div>
                             <h3>Java</h3>
                             <p>
                                 Enterprise applications and backend development
                             </p>
                         </div>
-                        <div class="tech-card" onclick="showProjects('golang')">
+                        <div
+                            class="tech-card"
+                            onclick="window.location.href='./golang-projects.html'"
+                        >
                             <div class="tech-icon">🐹</div>
                             <h3>Go</h3>
                             <p>High-performance backend services and tools</p>
                         </div>
-                        <div class="tech-card" onclick="showProjects('cpp')">
+                        <div
+                            class="tech-card"
+                            onclick="window.location.href='./cpp-projects.html'"
+                        >
                             <div class="tech-icon">⚡</div>
                             <h3>C++</h3>
                             <p>
@@ -80,7 +54,7 @@
                         </div>
                         <div
                             class="tech-card"
-                            onclick="showProjects('typescript')"
+                            onclick="window.location.href='./typescript-projects.html'"
                         >
                             <div class="tech-icon">📘</div>
                             <h3>TypeScript</h3>
@@ -91,109 +65,24 @@
                     </div>
 
                     <div class="additional-links">
-                        <a href="#" class="link-card" onclick="showArticles()">
+                        <a href="./articles.html" class="link-card">
                             <h4>Articles</h4>
                             <p>Technical writings and insights</p>
                         </a>
-                        <a href="#" class="link-card" onclick="showBlog()">
+                        <a href="./blog.html" class="link-card">
                             <h4>Blog</h4>
                             <p>Thoughts and experiences</p>
                         </a>
                     </div>
                 </div>
-
-                <!-- Projects Page -->
-                <div id="projects" class="projects-container">
-                    <button class="back-btn" onclick="showHome()">
-                        ← Back to Home
-                    </button>
-                    <div class="hero">
-                        <h1 id="projectsTitle">Java Projects</h1>
-                        <p id="projectsSubtitle">
-                            Enterprise applications and backend development
-                        </p>
-                    </div>
-                    <div class="projects-grid" id="projectsGrid">
-                        <!-- Projects will be populated by JavaScript -->
-                    </div>
-                </div>
-
-                <!-- Articles Page -->
-                <div id="articles" class="projects-container">
-                    <button class="back-btn" onclick="showHome()">
-                        ← Back to Home
-                    </button>
-                    <div class="hero">
-                        <h1>Articles</h1>
-                        <p>Technical writings and insights</p>
-                    </div>
-                    <div class="projects-grid">
-                        <!-- <div class="project-card">
-                        <h3>Getting Started with Microservices</h3>
-                        <p>A comprehensive guide to building microservices architecture using modern tools and best practices.</p>
-                        <div class="project-links">
-                            <a href="#">Read More</a>
-                        </div>
-                    </div>
-                    <div class="project-card">
-                        <h3>Performance Optimization Techniques</h3>
-                        <p>Deep dive into various performance optimization strategies for different programming languages.</p>
-                        <div class="project-links">
-                            <a href="#">Read More</a>
-                        </div>
-                    </div>
-                    <div class="project-card">
-                        <h3>Modern Web Development Patterns</h3>
-                        <p>Exploring contemporary patterns and practices in web development with TypeScript and modern frameworks.</p>
-                        <div class="project-links">
-                            <a href="#">Read More</a>
-                        </div>
-                    </div> -->
-                    </div>
-                </div>
-
-                <!-- Blog Page -->
-                <div id="blog" class="projects-container">
-                    <button class="back-btn" onclick="showHome()">
-                        ← Back to Home
-                    </button>
-                    <div class="hero">
-                        <h1>Blog</h1>
-                        <p>Thoughts and experiences</p>
-                    </div>
-                    <div class="projects-grid">
-                        <div class="project-card">
-                            <h3>My Year with the Ghana Armed Forces.</h3>
-                            <p>A National Service Reflection</p>
-                            <div class="project-links">
-                                <a href="./blogs/nss.html">Read More</a>
-                            </div>
-                        </div>
-                        <!-- <div class="project-card">
-                        <h3>The Future of Programming Languages</h3>
-                        <p>Thoughts on emerging trends and what the future might hold for developers.</p>
-                        <div class="project-links">
-                            <a href="#">Read More</a>
-                        </div>
-                    </div> -->
-                        <!-- <div class="project-card">
-                        <h3>Building Scalable Systems</h3>
-                        <p>Lessons learned from building and maintaining large-scale distributed systems.</p>
-                        <div class="project-links">
-                            <a href="#">Read More</a>
-                        </div>
-                    </div> -->
-                    </div>
-                </div>
             </div>
         </main>
 
-        <footer>
-            <div class="container">
-                <p>&copy; 2025 Sam Nart.</p>
-            </div>
-        </footer>
+        <!-- Footer Container -->
+        <div id="footer-container"></div>
 
+        <!-- Load component loader and scripts -->
+        <script src="./load-components.js"></script>
         <script src="./script.js"></script>
     </body>
 </html>
