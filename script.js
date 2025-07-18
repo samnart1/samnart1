@@ -4,108 +4,108 @@ const projectData = {
         title: "Java Projects",
         subtitle: "Enterprise applications and backend development",
         projects: [
-            {
-                title: "E-commerce Platform",
-                description:
-                    "A full-scale e-commerce platform built with Spring Boot, featuring user authentication, payment processing, and inventory management.",
-                github: "#",
-                demo: "#",
-            },
-            {
-                title: "Task Management API",
-                description:
-                    "RESTful API for task management with JWT authentication, built using Spring Boot and PostgreSQL.",
-                github: "#",
-                demo: "#",
-            },
-            {
-                title: "Data Processing Pipeline",
-                description:
-                    "A robust data processing pipeline using Apache Kafka and Spring Boot for real-time data analytics.",
-                github: "#",
-                demo: "#",
-            },
+        //     {
+        //         title: "E-commerce Platform",
+        //         description:
+        //             "A full-scale e-commerce platform built with Spring Boot, featuring user authentication, payment processing, and inventory management.",
+        //         github: "#",
+        //         demo: "#",
+        //     },
+        //     {
+        //         title: "Task Management API",
+        //         description:
+        //             "RESTful API for task management with JWT authentication, built using Spring Boot and PostgreSQL.",
+        //         github: "#",
+        //         demo: "#",
+        //     },
+        //     {
+        //         title: "Data Processing Pipeline",
+        //         description:
+        //             "A robust data processing pipeline using Apache Kafka and Spring Boot for real-time data analytics.",
+        //         github: "#",
+        //         demo: "#",
+        //     },
         ],
     },
     golang: {
         title: "Go Projects",
         subtitle: "High-performance backend services and tools",
         projects: [
-            {
-                title: "Microservices Architecture",
-                description:
-                    "A complete microservices setup with API Gateway, service discovery, and distributed tracing using Go.",
-                github: "#",
-                demo: "#",
-            },
-            {
-                title: "CLI Tool",
-                description:
-                    "A command-line tool for developers to manage and deploy applications efficiently.",
-                github: "#",
-                demo: "#",
-            },
-            {
-                title: "Real-time Chat Server",
-                description:
-                    "High-performance chat server with WebSocket support, handling thousands of concurrent connections.",
-                github: "#",
-                demo: "#",
-            },
+        //     {
+        //         title: "Microservices Architecture",
+        //         description:
+        //             "A complete microservices setup with API Gateway, service discovery, and distributed tracing using Go.",
+        //         github: "#",
+        //         demo: "#",
+        //     },
+        //     {
+        //         title: "CLI Tool",
+        //         description:
+        //             "A command-line tool for developers to manage and deploy applications efficiently.",
+        //         github: "#",
+        //         demo: "#",
+        //     },
+        //     {
+        //         title: "Real-time Chat Server",
+        //         description:
+        //             "High-performance chat server with WebSocket support, handling thousands of concurrent connections.",
+        //         github: "#",
+        //         demo: "#",
+        //     },
         ],
     },
     cpp: {
         title: "C++ Projects",
         subtitle: "System programming and performance-critical applications",
         projects: [
-            {
-                title: "Game Engine",
-                description:
-                    "A lightweight 2D game engine with OpenGL rendering and physics simulation capabilities.",
-                github: "#",
-                demo: "#",
-            },
-            {
-                title: "Database Engine",
-                description:
-                    "A simple but functional database engine with B-tree indexing and transaction support.",
-                github: "#",
-                demo: "#",
-            },
-            {
-                title: "Network Protocol Implementation",
-                description:
-                    "Custom implementation of TCP/IP protocol stack for educational purposes.",
-                github: "#",
-                demo: "#",
-            },
+        //     {
+        //         title: "Game Engine",
+        //         description:
+        //             "A lightweight 2D game engine with OpenGL rendering and physics simulation capabilities.",
+        //         github: "#",
+        //         demo: "#",
+        //     },
+        //     {
+        //         title: "Database Engine",
+        //         description:
+        //             "A simple but functional database engine with B-tree indexing and transaction support.",
+        //         github: "#",
+        //         demo: "#",
+        //     },
+        //     {
+        //         title: "Network Protocol Implementation",
+        //         description:
+        //             "Custom implementation of TCP/IP protocol stack for educational purposes.",
+        //         github: "#",
+        //         demo: "#",
+        //     },
         ],
     },
     typescript: {
         title: "TypeScript Projects",
         subtitle: "Modern web applications and frontend development",
         projects: [
-            {
-                title: "Project Management Dashboard",
-                description:
-                    "A comprehensive project management dashboard built with React, TypeScript, and Redux Toolkit.",
-                github: "#",
-                demo: "#",
-            },
-            {
-                title: "Real-time Collaboration Tool",
-                description:
-                    "A collaborative document editing tool similar to Google Docs, built with Next.js and Socket.io.",
-                github: "#",
-                demo: "#",
-            },
-            {
-                title: "Mobile App with React Native",
-                description:
-                    "Cross-platform mobile application for expense tracking with offline capabilities.",
-                github: "#",
-                demo: "#",
-            },
+        //     {
+        //         title: "Project Management Dashboard",
+        //         description:
+        //             "A comprehensive project management dashboard built with React, TypeScript, and Redux Toolkit.",
+        //         github: "#",
+        //         demo: "#",
+        //     },
+        //     {
+        //         title: "Real-time Collaboration Tool",
+        //         description:
+        //             "A collaborative document editing tool similar to Google Docs, built with Next.js and Socket.io.",
+        //         github: "#",
+        //         demo: "#",
+        //     },
+        //     {
+        //         title: "Mobile App with React Native",
+        //         description:
+        //             "Cross-platform mobile application for expense tracking with offline capabilities.",
+        //         github: "#",
+        //         demo: "#",
+        //     },
         ],
     },
 };
