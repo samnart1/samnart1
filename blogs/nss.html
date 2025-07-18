@@ -4,267 +4,35 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Blog - Sam Nart</title>
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-
-            :root {
-                --primary-color: #00758d;
-                --secondary-color: #5dc9e2;
-                --text-color: #333;
-                --bg-color: #fffef9;
-                --card-bg: #ffffff;
-                --border-color: #e0e0e0;
-                --hover-color: #f5f5f5;
-            }
-
-            [data-theme="dark"] {
-                --primary-color: #5dc9e2;
-                --secondary-color: #00758d;
-                --text-color: #e8e8e8;
-                --bg-color: #0f1419;
-                --card-bg: #1a1f2e;
-                --border-color: #2a2f3e;
-                --hover-color: #252a3a;
-            }
-
-            body {
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-                    Roboto, sans-serif;
-                line-height: 1.6;
-                color: var(--text-color);
-                background-color: var(--bg-color);
-                transition: background-color 0.3s ease, color 0.3s ease;
-                min-height: 100vh;
-                display: flex;
-                flex-direction: column;
-            }
-
-            .container {
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 0 20px;
-            }
-
-            /* Header */
-            header {
-                background-color: var(--card-bg);
-                border-bottom: 1px solid var(--border-color);
-                padding: 1rem 0;
-                position: sticky;
-                top: 0;
-                z-index: 100;
-                transition: background-color 0.3s ease;
-            }
-
-            .header-content {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-
-            .logo {
-                font-size: 1.5rem;
-                font-weight: bold;
-                color: var(--primary-color);
-                text-decoration: none;
-            }
-
-            .nav-links {
-                display: flex;
-                gap: 2rem;
-                align-items: center;
-            }
-
-            .nav-links a {
-                color: var(--text-color);
-                text-decoration: none;
-                font-weight: 500;
-                transition: color 0.3s ease;
-            }
-
-            .nav-links a:hover {
-                color: var(--primary-color);
-            }
-
-            .theme-toggle {
-                background: none;
-                border: 1px solid var(--border-color);
-                color: var(--text-color);
-                padding: 0.5rem 1rem;
-                border-radius: 4px;
-                cursor: pointer;
-                font-size: 0.9rem;
-                transition: all 0.3s ease;
-            }
-
-            .theme-toggle:hover {
-                background-color: var(--hover-color);
-            }
-
-            /* Main Content */
-            main {
-                flex: 1;
-                padding: 3rem 0;
-            }
-
-            .blog-container {
-                max-width: 800px;
-                margin: 0 auto;
-            }
-
-            .back-link {
-                display: inline-block;
-                margin-bottom: 2rem;
-                color: var(--primary-color);
-                text-decoration: none;
-                font-weight: 500;
-                transition: color 0.3s ease;
-            }
-
-            .back-link:hover {
-                color: var(--secondary-color);
-            }
-
-            .blog-article {
-                background-color: var(--card-bg);
-                border: 1px solid var(--border-color);
-                border-radius: 12px;
-                padding: 3rem;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            }
-
-            .blog-article h1 {
-                color: var(--primary-color);
-                font-size: 2.5rem;
-                margin-bottom: 1.5rem;
-                line-height: 1.2;
-            }
-
-            .blog-meta {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 3rem;
-                padding-bottom: 1rem;
-                border-bottom: 1px solid var(--border-color);
-            }
-
-            .blog-date {
-                color: var(--text-color);
-                opacity: 0.7;
-                font-size: 0.9rem;
-            }
-
-            .blog-tags {
-                display: flex;
-                gap: 0.5rem;
-            }
-
-            .blog-tag {
-                background-color: var(--secondary-color);
-                color: white;
-                padding: 0.25rem 0.75rem;
-                border-radius: 20px;
-                font-size: 0.8rem;
-                font-weight: 500;
-            }
-
-            .blog-content {
-                font-size: 1.1rem;
-                line-height: 1.8;
-            }
-
-            .blog-content p {
-                margin-bottom: 1.5rem;
-            }
-
-            .blog-content p:first-of-type {
-                font-size: 1.2rem;
-                color: var(--text-color);
-                opacity: 0.9;
-            }
-
-            .blog-content em {
-                color: var(--secondary-color);
-                font-style: italic;
-            }
-
-            .blog-content strong {
-                color: var(--primary-color);
-                font-weight: 600;
-            }
-
-            /* Footer */
-            footer {
-                background-color: var(--card-bg);
-                border-top: 1px solid var(--border-color);
-                padding: 2rem 0;
-                text-align: center;
-                margin-top: 3rem;
-            }
-
-            /* Responsive Design */
-            @media (max-width: 768px) {
-                .nav-links {
-                    gap: 1rem;
-                }
-
-                .blog-article {
-                    padding: 2rem 1.5rem;
-                }
-
-                .blog-article h1 {
-                    font-size: 2rem;
-                }
-
-                .blog-meta {
-                    flex-direction: column;
-                    gap: 1rem;
-                    align-items: flex-start;
-                }
-            }
-
-            @media (max-width: 480px) {
-                .container {
-                    padding: 0 15px;
-                }
-
-                .nav-links {
-                    flex-direction: column;
-                    gap: 0.5rem;
-                }
-
-                .blog-article {
-                    padding: 1.5rem 1rem;
-                }
-
-                .blog-article h1 {
-                    font-size: 1.8rem;
-                }
-
-                .blog-content {
-                    font-size: 1rem;
-                }
-            }
-        </style>
+        <link rel="stylesheet" href="/style.css" />
     </head>
     <body>
         <header>
             <div class="container">
                 <div class="header-content">
-                    <a href="#" class="logo">Sam Nart</a>
-                    <div class="nav-links">
+                    <a href="/index.html" class="logo">Sam Nart</a>
+                    <nav>
                         <a href="#">Home</a>
                         <a href="#">Articles</a>
-                        <a href="#">Projects</a>
+                        <a href="#">Blog</a>
                         <button class="theme-toggle" onclick="toggleTheme()">
                             🌙
                         </button>
-                    </div>
+                    </nav>
+                    <button
+                        class="mobile-menu-btn"
+                        onclick="toggleMobileMenu()"
+                    >
+                        ☰
+                    </button>
+                </div>
+                <div class="mobile-nav" id="mobileNav">
+                    <a href="/index.html">Home</a>
+                    <a href="/index.html#articles">Articles</a>
+                    <a href="/index.html">Blog</a>
+                    <button class="theme-toggle" onclick="toggleTheme()">
+                        🌙
+                    </button>
                 </div>
             </div>
         </header>
@@ -272,7 +40,9 @@
         <main>
             <div class="container">
                 <div class="blog-container">
-                    <a href="/index.html#blog" class="back-link">← Back to Blog</a>
+                    <a href="/index.html#blog" class="back-link"
+                        >← Back to Blog</a
+                    >
 
                     <article class="blog-article">
                         <h1>
@@ -302,7 +72,7 @@
 
                             <p>
                                 I was posted to the Ghana Armed Forces,
-                                specifically to an office known as <em>47</em>,
+                                specifically to an office known as <em>49</em>,
                                 with the role of IT technician. On paper, it
                                 sounded like a solid opportunity. I was excited.
                                 I imagined working in a structured, possibly
@@ -317,7 +87,7 @@
                                 Unfortunately, it didn't do much. It felt like a
                                 checkbox exercise — long and mostly disconnected
                                 from the work we'd soon be doing (or not doing).
-                                When I finally reported to 47, things were
+                                When I finally reported to 49, things were
                                 quiet. For the first two weeks, there was
                                 nothing set up for us. No computers, no
                                 structured tasks, no onboarding, no guidance. We
@@ -404,7 +174,9 @@
             </div>
         </footer>
 
-        <script>
+        <script src="/script.js"></script>
+
+        <!-- <script>
             // Theme functionality
             function toggleTheme() {
                 const body = document.body;
@@ -421,7 +193,9 @@
                 }
             }
 
-            function showBlog() {}
+            function toggleMobileMenu() {
+                const mobileNav = document.getElementById("mobileNav"); 
+            }
 
             // Load saved theme
             function loadTheme() {
@@ -440,6 +214,6 @@
             document.addEventListener("DOMContentLoaded", function () {
                 loadTheme();
             });
-        </script>
+        </script> -->
     </body>
 </html>
