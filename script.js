@@ -153,48 +153,48 @@ function showHome() {
     document.getElementById("blog").style.display = "none";
 }
 
-function showProjects(tech) {
-    const data = projectData[tech];
+// function showProjects(tech) {
+//     const data = projectData[tech];
 
-    document.getElementById("projectsTitle").textContent = data.title;
-    document.getElementById("projectsSubtitle").textContent = data.subtitle;
+//     document.getElementById("projectsTitle").textContent = data.title;
+//     document.getElementById("projectsSubtitle").textContent = data.subtitle;
 
-    const projectsGrid = document.getElementById("projectsGrid");
-    projectsGrid.innerHTML = "";
+//     const projectsGrid = document.getElementById("projectsGrid");
+//     projectsGrid.innerHTML = "";
 
-    data.projects.forEach((project) => {
-        const projectCard = document.createElement("div");
-        projectCard.className = "project-card";
-        projectCard.innerHTML = `
-                    <h3>${project.title}</h3>
-                    <p>${project.description}</p>
-                    <div class="project-links">
-                        <a href="${project.github}">GitHub</a>
-                        <a href="${project.demo}">Demo</a>
-                    </div>
-                `;
-        projectsGrid.appendChild(projectCard);
-    });
+//     data.projects.forEach((project) => {
+//         const projectCard = document.createElement("div");
+//         projectCard.className = "project-card";
+//         projectCard.innerHTML = `
+//                     <h3>${project.title}</h3>
+//                     <p>${project.description}</p>
+//                     <div class="project-links">
+//                         <a href="${project.github}">GitHub</a>
+//                         <a href="${project.demo}">Demo</a>
+//                     </div>
+//                 `;
+//         projectsGrid.appendChild(projectCard);
+//     });
 
-    document.getElementById("home").style.display = "none";
-    document.getElementById("projects").style.display = "block";
-    document.getElementById("articles").style.display = "none";
-    document.getElementById("blog").style.display = "none";
-}
+//     document.getElementById("home").style.display = "none";
+//     document.getElementById("projects").style.display = "block";
+//     document.getElementById("articles").style.display = "none";
+//     document.getElementById("blog").style.display = "none";
+// }
 
-function showArticles() {
-    document.getElementById("home").style.display = "none";
-    document.getElementById("projects").style.display = "none";
-    document.getElementById("articles").style.display = "block";
-    document.getElementById("blog").style.display = "none";
-}
+// function showArticles() {
+//     document.getElementById("home").style.display = "none";
+//     document.getElementById("projects").style.display = "none";
+//     document.getElementById("articles").style.display = "block";
+//     document.getElementById("blog").style.display = "none";
+// }
 
-function showBlog() {
-    document.getElementById("home").style.display = "none";
-    document.getElementById("projects").style.display = "none";
-    document.getElementById("articles").style.display = "none";
-    document.getElementById("blog").style.display = "block";
-}
+// function showBlog() {
+//     document.getElementById("home").style.display = "none";
+//     document.getElementById("projects").style.display = "none";
+//     document.getElementById("articles").style.display = "none";
+//     document.getElementById("blog").style.display = "block";
+// }
 
 // Mobile menu functionality
 function toggleMobileMenu() {
