@@ -954,14 +954,223 @@ body::before {
     .nav, .footer, .lightbox {
         display: none;
     }
-    
+
     body {
         background: #fff;
         color: #000;
     }
-    
+
     .project-card {
         break-inside: avoid;
         border: 1px solid #ccc;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Article Page
+   -------------------------------------------------------------------------- */
+.article {
+    max-width: var(--content-width);
+}
+
+.article__header {
+    margin-bottom: var(--space-xl);
+    padding-bottom: var(--space-lg);
+    border-bottom: 1px solid var(--border);
+}
+
+.article__title {
+    font-family: var(--font-serif);
+    font-size: 2.25rem;
+    font-weight: 500;
+    line-height: 1.25;
+    color: var(--text-primary);
+    margin-bottom: var(--space-md);
+}
+
+.article__meta {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+}
+
+.article__date {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.article__reading-time {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.article__reading-time::before {
+    content: '·';
+    margin-right: var(--space-xs);
+}
+
+.article__content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+}
+
+.article__content p {
+    margin-bottom: var(--space-lg);
+}
+
+.article__content h2 {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-md);
+}
+
+.article__content h3 {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-top: var(--space-lg);
+    margin-bottom: var(--space-md);
+}
+
+.article__content a {
+    color: var(--text-primary);
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 3px;
+    transition: color var(--transition-fast);
+}
+
+.article__content a:hover {
+    color: var(--accent);
+}
+
+.article__content ul,
+.article__content ol {
+    margin-bottom: var(--space-lg);
+    padding-left: var(--space-lg);
+}
+
+.article__content li {
+    margin-bottom: var(--space-sm);
+}
+
+.article__content blockquote {
+    border-left: 3px solid var(--accent);
+    padding-left: var(--space-lg);
+    margin: var(--space-lg) 0;
+    font-style: italic;
+    color: var(--text-muted);
+}
+
+.article__content code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    background: var(--bg-tertiary);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    color: var(--accent);
+}
+
+.article__content pre {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: var(--space-lg);
+    overflow-x: auto;
+    margin: var(--space-lg) 0;
+}
+
+.article__content pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.article__content strong {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.article__content em {
+    font-style: italic;
+}
+
+.article__content hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: var(--space-xl) 0;
+}
+
+.article__content img {
+    border-radius: 8px;
+    margin: var(--space-lg) 0;
+}
+
+.article__content .note {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    padding: var(--space-md) var(--space-lg);
+    margin: var(--space-lg) 0;
+}
+
+.article__content .note p:last-child {
+    margin-bottom: 0;
+}
+
+.article__footer {
+    margin-top: var(--space-xl);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--border);
+}
+
+.article__back {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    transition: color var(--transition-fast);
+}
+
+.article__back:hover {
+    color: var(--accent);
+}
+
+.article__back svg {
+    width: 16px;
+    height: 16px;
+}
+
+@media (max-width: 600px) {
+    .article__title {
+        font-size: 1.75rem;
+    }
+
+    .article__content {
+        font-size: 1rem;
+    }
+
+    .article__content h2 {
+        font-size: 1.35rem;
+    }
+
+    .article__content h3 {
+        font-size: 1.15rem;
     }
 }

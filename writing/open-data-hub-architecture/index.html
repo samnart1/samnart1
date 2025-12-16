@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inside Open Data Hub's Architecture — Sam Nart</title>
+    <meta name="description" content="A deep dive into the architecture of Open Data Hub, South Tyrol's open data platform for mobility, tourism, and more.">
+
+    <meta property="og:title" content="Inside Open Data Hub's Architecture — Sam Nart">
+    <meta property="og:description" content="A deep dive into the architecture of Open Data Hub.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://samnart.website/writing/open-data-hub-architecture/">
+
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="nav">
+        <div class="container nav__inner">
+            <a href="/" class="nav__logo">sam<span>.</span>nart</a>
+
+            <button class="nav__mobile-toggle" aria-label="Toggle menu" aria-expanded="false">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+
+            <ul class="nav__links">
+                <li><a href="/writing/" class="nav__link active">Writing</a></li>
+                <li><a href="/projects/" class="nav__link">Projects</a></li>
+                <li><a href="/photography/" class="nav__link">Photography</a></li>
+                <li><a href="/shop/" class="nav__link">Shop</a></li>
+                <li><a href="/about/" class="nav__link">About</a></li>
+                <li>
+                    <button class="nav__toggle" aria-label="Toggle theme"></button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="page">
+        <div class="container container--narrow">
+            <article class="article">
+                <header class="article__header">
+                    <h1 class="article__title">Inside Open Data Hub's Architecture</h1>
+                    <div class="article__meta">
+                        <span class="article__date">Oct 2025</span>
+                        <span class="article__reading-time">10 min read</span>
+                    </div>
+                </header>
+
+                <div class="article__content">
+                    <p>
+                        I work at NOI Techpark on the Open Data Hub, an open data platform that collects and provides access to datasets about mobility, tourism, weather, and other domains in South Tyrol. What started as a regional project has grown into a sophisticated data platform serving millions of API requests.
+                    </p>
+
+                    <p>
+                        This article explores the architecture behind Open Data Hub—the design decisions, trade-offs, and lessons learned from building a platform that must handle diverse data sources, varying update frequencies, and real-time requirements.
+                    </p>
+
+                    <h2>The Problem Space</h2>
+
+                    <p>
+                        Open Data Hub aggregates data from dozens of heterogeneous sources:
+                    </p>
+
+                    <ul>
+                        <li>Real-time traffic sensors updating every minute</li>
+                        <li>Public transit data in GTFS and GTFS-RT formats</li>
+                        <li>Tourism statistics updated daily</li>
+                        <li>Weather stations with varying refresh rates</li>
+                        <li>Parking availability changing by the second</li>
+                        <li>Event calendars updated sporadically</li>
+                    </ul>
+
+                    <p>
+                        Each source has its own format, update frequency, reliability profile, and quirks. Some provide well-documented REST APIs. Others offer CSV files uploaded to FTP servers. A few require scraping websites. The challenge is presenting all of this through a unified, reliable API.
+                    </p>
+
+                    <h2>High-Level Architecture</h2>
+
+                    <p>
+                        The system follows a pipeline architecture with three main stages:
+                    </p>
+
+                    <ol>
+                        <li><strong>Data Collection</strong> — Ingest data from external sources</li>
+                        <li><strong>Data Processing</strong> — Transform, validate, and enrich</li>
+                        <li><strong>Data Serving</strong> — Expose through APIs and other interfaces</li>
+                    </ol>
+
+                    <p>
+                        This separation allows each stage to scale independently and fail gracefully. If a data collector crashes, historical data remains available. If the API is overloaded, collection continues unaffected.
+                    </p>
+
+                    <h2>Data Collection Layer</h2>
+
+                    <p>
+                        Data collectors are standalone Java services, each responsible for one or more data sources. They run on scheduled intervals (cron-like) and write to a shared data store.
+                    </p>
+
+<pre><code>@Scheduled(fixedRate = 60000)  // Every minute
+public void collectTrafficData() {
+    List&lt;TrafficSensor&gt; sensors = trafficApi.getSensors();
+
+    for (TrafficSensor sensor : sensors) {
+        Measurement m = Measurement.builder()
+            .stationId(sensor.getId())
+            .value(sensor.getCurrentFlow())
+            .timestamp(Instant.now())
+            .build();
+
+        measurementRepository.save(m);
+    }
+}</code></pre>
+
+                    <h3>Design decisions:</h3>
+
+                    <ul>
+                        <li><strong>Pull over push:</strong> We pull data from sources rather than accepting pushes. This gives us control over rate limiting and error handling.</li>
+                        <li><strong>Idempotent writes:</strong> Collectors can safely retry failed operations. We use upserts keyed on source ID and timestamp.</li>
+                        <li><strong>Source isolation:</strong> Each collector runs in its own process. A misbehaving source can't affect others.</li>
+                    </ul>
+
+                    <h3>Handling unreliable sources:</h3>
+
+                    <p>
+                        External APIs fail in creative ways. Our collectors implement:
+                    </p>
+
+                    <ul>
+                        <li>Exponential backoff with jitter</li>
+                        <li>Circuit breakers to avoid hammering failing endpoints</li>
+                        <li>Staleness detection—if data hasn't updated in too long, mark it as stale</li>
+                        <li>Alerting when sources go offline for extended periods</li>
+                    </ul>
+
+                    <h2>Data Storage</h2>
+
+                    <p>
+                        We use PostgreSQL as the primary data store, with TimescaleDB for time-series data. This combination handles both the relational aspects (stations, metadata, relationships) and the time-series aspects (measurements, events).
+                    </p>
+
+                    <div class="note">
+                        <p>
+                            <strong>Why not a dedicated time-series database?</strong> We evaluated InfluxDB and other specialized solutions. PostgreSQL with TimescaleDB won because: (1) we already had PostgreSQL expertise, (2) it handles the relational queries we need, and (3) the operational simplicity of one database technology outweighed the performance gains of specialized solutions for our scale.
+                        </p>
+                    </div>
+
+                    <h3>Schema design:</h3>
+
+                    <p>
+                        The core schema follows a star pattern with stations at the center:
+                    </p>
+
+<pre><code>-- Stations are the core entity
+CREATE TABLE stations (
+    id UUID PRIMARY KEY,
+    source_id VARCHAR NOT NULL,
+    name VARCHAR NOT NULL,
+    station_type VARCHAR NOT NULL,
+    coordinates GEOGRAPHY(POINT),
+    metadata JSONB,
+    UNIQUE(source_id, station_type)
+);
+
+-- Measurements are time-series data
+CREATE TABLE measurements (
+    station_id UUID REFERENCES stations(id),
+    timestamp TIMESTAMPTZ NOT NULL,
+    data_type VARCHAR NOT NULL,
+    value DOUBLE PRECISION,
+    PRIMARY KEY (station_id, timestamp, data_type)
+);
+
+-- TimescaleDB hypertable for automatic partitioning
+SELECT create_hypertable('measurements', 'timestamp');</code></pre>
+
+                    <h2>API Layer</h2>
+
+                    <p>
+                        The public API is a Spring Boot application that translates REST requests into database queries. It's stateless, allowing horizontal scaling behind a load balancer.
+                    </p>
+
+                    <h3>Query flexibility:</h3>
+
+                    <p>
+                        Consumers have diverse needs. A mobile app wants current parking availability. A researcher wants historical traffic patterns. A dashboard wants aggregated statistics. We address this with a flexible query language:
+                    </p>
+
+<pre><code>GET /v2/stations/TrafficSensor?where=active.eq.true
+                              &select=id,name,coordinates
+                              &limit=100
+
+GET /v2/measurements/TrafficSensor?from=2025-01-01
+                                  &to=2025-01-31
+                                  &select=avg(value)
+                                  &groupBy=hour</code></pre>
+
+                    <p>
+                        This design—inspired by PostgREST—gives consumers power without requiring custom endpoints for each use case.
+                    </p>
+
+                    <h3>Caching strategy:</h3>
+
+                    <p>
+                        We use a multi-layer caching approach:
+                    </p>
+
+                    <ol>
+                        <li><strong>HTTP caching:</strong> Standard Cache-Control headers. CDNs handle most static data.</li>
+                        <li><strong>Application cache:</strong> Redis caches expensive queries. TTL varies by data type—real-time data has short TTL, historical data has long TTL.</li>
+                        <li><strong>Query result caching:</strong> Identical queries within a time window return cached results.</li>
+                    </ol>
+
+                    <h2>Real-Time Data: GTFS-RT</h2>
+
+                    <p>
+                        Public transit data requires special handling. GTFS-RT (General Transit Feed Specification - Realtime) provides real-time updates to scheduled transit data: vehicle positions, trip updates, and service alerts.
+                    </p>
+
+                    <p>
+                        The challenge: GTFS-RT uses Protocol Buffers and assumes you have the static GTFS data loaded. Our pipeline:
+                    </p>
+
+                    <ol>
+                        <li>Periodically fetch and parse static GTFS feeds</li>
+                        <li>Build in-memory indexes for fast lookup</li>
+                        <li>Subscribe to GTFS-RT feeds (usually every 10-30 seconds)</li>
+                        <li>Merge real-time updates with scheduled data</li>
+                        <li>Expose through both native GTFS-RT and our REST API</li>
+                    </ol>
+
+                    <p>
+                        I built a separate service for this—<a href="https://github.com/samnart/gtfs-transformer">gtfs-transformer</a>—in Go, because the real-time processing benefits from Go's concurrency model and lower memory footprint compared to Java.
+                    </p>
+
+                    <h2>Monitoring and Observability</h2>
+
+                    <p>
+                        With data flowing from dozens of sources, visibility is essential. We instrument everything:
+                    </p>
+
+                    <ul>
+                        <li><strong>Metrics:</strong> Prometheus scrapes all services. Grafana dashboards show collection rates, API latency, error rates.</li>
+                        <li><strong>Logs:</strong> Structured logging (JSON) shipped to Elasticsearch. Every data record has a trace ID from source to API.</li>
+                        <li><strong>Alerts:</strong> PagerDuty alerts for critical issues. Slack notifications for warnings.</li>
+                        <li><strong>Data quality:</strong> Automated checks for anomalies—sudden drops in data volume, unusual values, gaps in time series.</li>
+                    </ul>
+
+                    <h2>Lessons Learned</h2>
+
+                    <h3>1. External sources are the hardest part</h3>
+
+                    <p>
+                        The most challenging work isn't our infrastructure—it's handling the unpredictability of external data sources. APIs change without notice. Formats are inconsistent. Documentation lies. Building resilience into collectors is more important than optimizing the happy path.
+                    </p>
+
+                    <h3>2. Schema evolution is constant</h3>
+
+                    <p>
+                        New data sources mean new fields, new types, new relationships. We've learned to design for flexibility. JSONB columns for metadata that changes frequently. Feature flags to hide incomplete integrations. Migration scripts that work forward and backward.
+                    </p>
+
+                    <h3>3. Start simple, optimize later</h3>
+
+                    <p>
+                        Our first version used a single PostgreSQL instance with no caching. It worked fine until it didn't. The modular architecture let us add caching, read replicas, and eventually TimescaleDB without rewriting the entire system.
+                    </p>
+
+                    <h3>4. Open data means open source</h3>
+
+                    <p>
+                        Almost all of Open Data Hub is open source. This transparency builds trust with data providers and consumers. It also attracts contributions—we've merged pull requests from researchers, students, and developers who use the platform.
+                    </p>
+
+                    <h2>What's Next</h2>
+
+                    <p>
+                        Open Data Hub continues to evolve. Current focus areas:
+                    </p>
+
+                    <ul>
+                        <li>GraphQL API for more flexible queries</li>
+                        <li>Event streaming for real-time subscriptions</li>
+                        <li>Improved data lineage and provenance tracking</li>
+                        <li>AI/ML integration for anomaly detection and prediction</li>
+                    </ul>
+
+                    <p>
+                        Working on this platform has taught me more about data systems than any textbook could. The intersection of reliability, performance, and usability—while handling data you don't control—is endlessly interesting.
+                    </p>
+
+                    <hr>
+
+                    <p>
+                        <em>Open Data Hub is developed at NOI Techpark in Bolzano, Italy. The platform is open source and available at <a href="https://github.com/noi-techpark">github.com/noi-techpark</a>. The API is public and free to use at <a href="https://opendatahub.com">opendatahub.com</a>.</em>
+                    </p>
+                </div>
+
+                <footer class="article__footer">
+                    <a href="/writing/" class="article__back">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        Back to Writing
+                    </a>
+                </footer>
+            </article>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer__inner">
+            <p class="footer__text">Bolzano, Italy · 2025</p>
+            <div class="footer__links">
+                <a href="https://github.com/samnart" class="footer__link" target="_blank" rel="noopener" aria-label="GitHub">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                </a>
+                <a href="https://linkedin.com/in/samnart" class="footer__link" target="_blank" rel="noopener" aria-label="LinkedIn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                </a>
+                <a href="mailto:hello@samnart.website" class="footer__link" aria-label="Email">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
