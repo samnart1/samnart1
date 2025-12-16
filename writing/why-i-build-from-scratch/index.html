@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why I Build Things From Scratch — Sam Nart</title>
+    <meta name="description" content="On the value of understanding systems deeply by building them yourself, and knowing when not to.">
+
+    <meta property="og:title" content="Why I Build Things From Scratch — Sam Nart">
+    <meta property="og:description" content="On the value of understanding systems deeply by building them yourself.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://samnart.website/writing/why-i-build-from-scratch/">
+
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="nav">
+        <div class="container nav__inner">
+            <a href="/" class="nav__logo">sam<span>.</span>nart</a>
+
+            <button class="nav__mobile-toggle" aria-label="Toggle menu" aria-expanded="false">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+
+            <ul class="nav__links">
+                <li><a href="/writing/" class="nav__link active">Writing</a></li>
+                <li><a href="/projects/" class="nav__link">Projects</a></li>
+                <li><a href="/photography/" class="nav__link">Photography</a></li>
+                <li><a href="/shop/" class="nav__link">Shop</a></li>
+                <li><a href="/about/" class="nav__link">About</a></li>
+                <li>
+                    <button class="nav__toggle" aria-label="Toggle theme"></button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="page">
+        <div class="container container--narrow">
+            <article class="article">
+                <header class="article__header">
+                    <h1 class="article__title">Why I Build Things From Scratch</h1>
+                    <div class="article__meta">
+                        <span class="article__date">Sep 2025</span>
+                        <span class="article__reading-time">8 min read</span>
+                    </div>
+                </header>
+
+                <div class="article__content">
+                    <p>
+                        I have a habit that puzzles some of my colleagues: I build things from scratch that already exist. I've written a raytracer when Blender exists. I've implemented a TCP server when countless libraries do this better. I've built a hash map when every language has one built in.
+                    </p>
+
+                    <p>
+                        This isn't about reinventing wheels or NIH syndrome. It's about understanding how the wheels work—and knowing when to use the existing ones.
+                    </p>
+
+                    <h2>The Knowing Gap</h2>
+
+                    <p>
+                        There's a difference between <em>using</em> something and <em>understanding</em> it. I can use a hash map perfectly well without knowing how it works. I can call <code>map.get(key)</code> all day. But until I implement one myself, I don't really <em>know</em> hash maps.
+                    </p>
+
+                    <p>
+                        Why does load factor matter? What happens during a resize? Why do some operations take O(n) in the worst case? Why might I choose a tree-based map over a hash-based one? These questions only make sense after you've hit the walls yourself.
+                    </p>
+
+                    <blockquote>
+                        "What I cannot create, I do not understand." — Richard Feynman
+                    </blockquote>
+
+                    <p>
+                        This isn't gatekeeping. Plenty of excellent developers use tools without understanding their internals, and that's fine. But for me, deep understanding leads to better decisions. When I know how the pieces work, I can predict behavior, debug faster, and choose the right tool for the job.
+                    </p>
+
+                    <h2>The Raytracer</h2>
+
+                    <p>
+                        Last year, I built a software raytracer from scratch. No graphics libraries, no shaders—just math and pixels. It renders spheres, handles reflections, and produces surprisingly pretty images for something that takes minutes to render a single frame.
+                    </p>
+
+                    <p>
+                        Was this practical? Not at all. Blender renders better images in milliseconds. But building that raytracer taught me:
+                    </p>
+
+                    <ul>
+                        <li>How light actually works (or how we approximate it)</li>
+                        <li>Why ray-object intersection is the bottleneck</li>
+                        <li>Why spatial data structures like BVH exist</li>
+                        <li>Why GPUs are so much faster at this</li>
+                        <li>The difference between physically-based and Phong shading</li>
+                    </ul>
+
+                    <p>
+                        Now when I read about RTX ray tracing or look at rendering in game engines, I understand the fundamentals. I can read papers about global illumination and follow along. That knowledge compounds.
+                    </p>
+
+                    <h2>The TCP Server</h2>
+
+                    <p>
+                        My TCP server project started as "let's see how hard this is" and ended up teaching me more about networking than any course.
+                    </p>
+
+<pre><code>// What I thought networking was
+socket.connect(host, port);
+socket.send(data);
+
+// What networking actually involves
+// - Socket creation and binding
+// - Non-blocking I/O or thread pools
+// - Connection state machines
+// - Buffer management
+// - Graceful shutdown
+// - Timeout handling
+// - Keep-alive management
+// - Error recovery
+// ...</code></pre>
+
+                    <p>
+                        Before building this, I used HTTP libraries and network frameworks without thinking. After building it, I understand <em>why</em> those abstractions exist and what trade-offs they make. When something goes wrong at the network layer, I have a mental model to debug with.
+                    </p>
+
+                    <h2>When To Build From Scratch</h2>
+
+                    <p>
+                        Not everything is worth building from scratch. I'm not writing my own operating system or compiler (yet). The decision depends on a few factors:
+                    </p>
+
+                    <h3>1. Is this foundational to my work?</h3>
+
+                    <p>
+                        I build things that are fundamental to domains I work in. As someone working with distributed systems, understanding networking, concurrency, and data structures at a deep level pays dividends. I probably don't need to write my own text editor.
+                    </p>
+
+                    <h3>2. Is the knowledge transferable?</h3>
+
+                    <p>
+                        Building a raytracer taught me linear algebra, spatial data structures, and optimization techniques that apply far beyond graphics. Building a custom CMS for my blog probably wouldn't transfer as well.
+                    </p>
+
+                    <h3>3. Can I scope it reasonably?</h3>
+
+                    <p>
+                        A hash map takes a weekend. A database engine takes years. I pick projects I can complete in weeks, not months. Unfinished projects teach less than finished ones.
+                    </p>
+
+                    <h2>When To Use Existing Solutions</h2>
+
+                    <p>
+                        At work, I almost always use existing solutions. The TCP server I built? It's a learning project, not a production system. In production, I use battle-tested libraries with years of bug fixes and security patches.
+                    </p>
+
+                    <p>
+                        The goal isn't to replace existing tools—it's to understand them well enough to use them effectively.
+                    </p>
+
+                    <div class="note">
+                        <p>
+                            <strong>The paradox:</strong> The better I understand how something works, the more comfortable I am using someone else's implementation. I can evaluate trade-offs, read the source when needed, and contribute fixes.
+                        </p>
+                    </div>
+
+                    <h2>The Learning Curriculum</h2>
+
+                    <p>
+                        I think of these projects as a self-directed curriculum. Each one fills in a piece of the puzzle:
+                    </p>
+
+                    <ul>
+                        <li><strong>Hash map</strong> → hashing, collisions, memory layout</li>
+                        <li><strong>Raytracer</strong> → linear algebra, rendering pipeline, optimization</li>
+                        <li><strong>TCP server</strong> → sockets, protocols, I/O models</li>
+                        <li><strong>Memory allocator</strong> → how malloc works, fragmentation</li>
+                        <li><strong>Interpreter</strong> → parsing, ASTs, evaluation</li>
+                    </ul>
+
+                    <p>
+                        Each project builds on previous knowledge. The memory allocator was easier after understanding how hash maps manage buckets. The interpreter was easier after implementing the expression parser for my calculator.
+                    </p>
+
+                    <h2>Beyond Code</h2>
+
+                    <p>
+                        This philosophy extends beyond programming. I read technical papers, not just blog post summaries. I study the internals of databases I use, not just their query language. When I use a framework, I eventually read its source.
+                    </p>
+
+                    <p>
+                        It's slower. There's always more to learn than time allows. But the understanding compounds. Each piece of deep knowledge makes learning the next thing easier.
+                    </p>
+
+                    <h2>Practical Advice</h2>
+
+                    <p>
+                        If this resonates with you, here's how I approach these projects:
+                    </p>
+
+                    <ol>
+                        <li><strong>Start small.</strong> Implement a basic version first. Add features incrementally.</li>
+                        <li><strong>Use resources wisely.</strong> Read one good reference, not ten. "Crafting Interpreters" for interpreters. "Ray Tracing in One Weekend" for raytracers.</li>
+                        <li><strong>Set scope limits.</strong> Define "done" before you start. A raytracer that renders spheres is done. Adding every feature in Blender is not the goal.</li>
+                        <li><strong>Write about it.</strong> Explaining what you learned solidifies understanding. Even notes to yourself help.</li>
+                        <li><strong>Keep the code.</strong> Your implementation is a reference you can return to. I regularly look back at old projects.</li>
+                    </ol>
+
+                    <h2>The Point</h2>
+
+                    <p>
+                        I build things from scratch not to replace existing tools, but to understand them. That understanding makes me a better engineer—able to debug deeper, choose better, and learn faster.
+                    </p>
+
+                    <p>
+                        It's not about the code. The raytracer sits unused. The TCP server never handled real traffic. But the knowledge they represent? That I use every day.
+                    </p>
+                </div>
+
+                <footer class="article__footer">
+                    <a href="/writing/" class="article__back">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        Back to Writing
+                    </a>
+                </footer>
+            </article>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer__inner">
+            <p class="footer__text">Bolzano, Italy · 2025</p>
+            <div class="footer__links">
+                <a href="https://github.com/samnart" class="footer__link" target="_blank" rel="noopener" aria-label="GitHub">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                </a>
+                <a href="https://linkedin.com/in/samnart" class="footer__link" target="_blank" rel="noopener" aria-label="LinkedIn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                </a>
+                <a href="mailto:hello@samnart.website" class="footer__link" aria-label="Email">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

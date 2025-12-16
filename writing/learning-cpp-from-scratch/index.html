@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning C++ From Scratch: A Roadmap — Sam Nart</title>
+    <meta name="description" content="A practical roadmap for learning modern C++ from scratch, with recommended resources and project ideas at each stage.">
+
+    <meta property="og:title" content="Learning C++ From Scratch: A Roadmap — Sam Nart">
+    <meta property="og:description" content="A practical roadmap for learning modern C++ from scratch.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://samnart.website/writing/learning-cpp-from-scratch/">
+
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="nav">
+        <div class="container nav__inner">
+            <a href="/" class="nav__logo">sam<span>.</span>nart</a>
+
+            <button class="nav__mobile-toggle" aria-label="Toggle menu" aria-expanded="false">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+
+            <ul class="nav__links">
+                <li><a href="/writing/" class="nav__link active">Writing</a></li>
+                <li><a href="/projects/" class="nav__link">Projects</a></li>
+                <li><a href="/photography/" class="nav__link">Photography</a></li>
+                <li><a href="/shop/" class="nav__link">Shop</a></li>
+                <li><a href="/about/" class="nav__link">About</a></li>
+                <li>
+                    <button class="nav__toggle" aria-label="Toggle theme"></button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="page">
+        <div class="container container--narrow">
+            <article class="article">
+                <header class="article__header">
+                    <h1 class="article__title">Learning C++ From Scratch: A Roadmap</h1>
+                    <div class="article__meta">
+                        <span class="article__date">Nov 2025</span>
+                        <span class="article__reading-time">15 min read</span>
+                    </div>
+                </header>
+
+                <div class="article__content">
+                    <p>
+                        I started learning C++ seriously about a year ago. Coming from Java and Go, I thought I knew what to expect—a systems language with manual memory management and some syntactic quirks. I was wrong. C++ is a different beast entirely, and learning it requires a different approach than learning most other languages.
+                    </p>
+
+                    <p>
+                        This is the roadmap I wish I had when I started. It's opinionated, focused on modern C++ (C++17 and later), and designed for programmers who already know at least one other language.
+                    </p>
+
+                    <h2>Why C++ in 2025?</h2>
+
+                    <p>
+                        Before diving into the roadmap, let's address the obvious question: why learn C++ when there are more modern alternatives like Rust?
+                    </p>
+
+                    <p>
+                        My answer: C++ remains the dominant language in performance-critical domains—game engines, graphics, embedded systems, high-frequency trading, and legacy codebases that aren't going anywhere. Understanding C++ makes you more effective in these domains and gives you a deeper understanding of how computers actually work.
+                    </p>
+
+                    <p>
+                        Plus, many C++ patterns and concepts translate directly to other languages. Understanding RAII makes you better at Go. Understanding templates makes you appreciate generics in any language. Understanding undefined behavior makes you paranoid in the best way.
+                    </p>
+
+                    <h2>Stage 1: Foundations (4-6 weeks)</h2>
+
+                    <p>
+                        The goal of this stage is to get comfortable with basic syntax and understand how C++ differs from languages you already know.
+                    </p>
+
+                    <h3>Core concepts to learn:</h3>
+
+                    <ul>
+                        <li>Variables, types, and type inference (<code>auto</code>)</li>
+                        <li>Control structures (mostly familiar)</li>
+                        <li>Functions, references, and pointers</li>
+                        <li>Classes, constructors, destructors</li>
+                        <li>The compilation model (headers, translation units, linking)</li>
+                        <li>Basic STL containers (<code>vector</code>, <code>string</code>, <code>map</code>)</li>
+                    </ul>
+
+                    <h3>Key insight:</h3>
+
+                    <div class="note">
+                        <p>
+                            <strong>References vs pointers:</strong> Coming from Java, I initially confused C++ references with Java references. They're not the same. A C++ reference is an alias—it <em>is</em> the object. A pointer is an address. A Java reference is closer to a C++ pointer than a C++ reference.
+                        </p>
+                    </div>
+
+                    <h3>Project: Command-line calculator</h3>
+
+                    <p>
+                        Build a calculator that parses and evaluates mathematical expressions. This covers parsing, recursion, and basic data structures without requiring advanced features.
+                    </p>
+
+<pre><code>// Simple expression evaluation
+double evaluate(const std::string& expr);
+
+// Example usage
+std::cout << evaluate("2 + 3 * 4");  // 14
+std::cout << evaluate("(2 + 3) * 4"); // 20</code></pre>
+
+                    <h3>Resources:</h3>
+
+                    <ul>
+                        <li>"A Tour of C++" by Bjarne Stroustrup — Essential, concise, authoritative</li>
+                        <li>learncpp.com — Comprehensive free tutorials</li>
+                        <li>cppreference.com — The reference you'll use forever</li>
+                    </ul>
+
+                    <h2>Stage 2: Memory and Resource Management (6-8 weeks)</h2>
+
+                    <p>
+                        This is where C++ diverges from garbage-collected languages. Understanding memory management is non-negotiable.
+                    </p>
+
+                    <h3>Core concepts to learn:</h3>
+
+                    <ul>
+                        <li>Stack vs heap allocation</li>
+                        <li>RAII (Resource Acquisition Is Initialization)</li>
+                        <li>Smart pointers (<code>unique_ptr</code>, <code>shared_ptr</code>, <code>weak_ptr</code>)</li>
+                        <li>Move semantics and rvalue references</li>
+                        <li>Copy/move constructors and assignment operators</li>
+                        <li>The Rule of Zero/Three/Five</li>
+                    </ul>
+
+                    <h3>Key insight:</h3>
+
+                    <p>
+                        <strong>RAII is the heart of C++.</strong> Once you understand that resource management is tied to object lifetime, everything else makes sense. Destructors aren't just for cleanup—they're guarantees.
+                    </p>
+
+<pre><code>class FileHandle {
+    std::FILE* file_;
+public:
+    explicit FileHandle(const char* path)
+        : file_(std::fopen(path, "r")) {
+        if (!file_) throw std::runtime_error("Failed to open");
+    }
+
+    ~FileHandle() {
+        if (file_) std::fclose(file_);
+    }
+
+    // Delete copy, allow move
+    FileHandle(const FileHandle&) = delete;
+    FileHandle& operator=(const FileHandle&) = delete;
+    FileHandle(FileHandle&& other) noexcept
+        : file_(std::exchange(other.file_, nullptr)) {}
+};</code></pre>
+
+                    <h3>Project: Custom memory allocator</h3>
+
+                    <p>
+                        Implement a simple pool allocator. This forces you to understand memory layout, alignment, and why smart pointers exist.
+                    </p>
+
+                    <h3>Resources:</h3>
+
+                    <ul>
+                        <li>"Effective Modern C++" by Scott Meyers — Essential for understanding modern idioms</li>
+                        <li>Back to Basics talks from CppCon — Search for RAII and move semantics</li>
+                    </ul>
+
+                    <h2>Stage 3: Templates and Generic Programming (4-6 weeks)</h2>
+
+                    <p>
+                        Templates are C++'s most powerful and most abused feature. The goal here is competence, not mastery—template metaprogramming is a rabbit hole.
+                    </p>
+
+                    <h3>Core concepts to learn:</h3>
+
+                    <ul>
+                        <li>Function and class templates</li>
+                        <li>Template argument deduction</li>
+                        <li>Concepts (C++20) or SFINAE (pre-C++20)</li>
+                        <li>Variadic templates</li>
+                        <li>Type traits and <code>&lt;type_traits&gt;</code></li>
+                    </ul>
+
+                    <h3>Key insight:</h3>
+
+                    <p>
+                        Templates are not generics. In Java, generics are erased at runtime. In C++, templates are instantiated at compile time—the compiler generates actual code for each type you use. This is why template errors are so verbose: you're seeing errors in generated code.
+                    </p>
+
+                    <h3>Project: Generic data structures</h3>
+
+                    <p>
+                        Implement a generic linked list or hash map. Then implement iterators so it works with STL algorithms.
+                    </p>
+
+<pre><code>template<typename T>
+class LinkedList {
+public:
+    class iterator { /* ... */ };
+
+    iterator begin();
+    iterator end();
+
+    void push_back(const T& value);
+    void push_back(T&& value);  // Move-aware overload
+};</code></pre>
+
+                    <h2>Stage 4: Concurrency (4-6 weeks)</h2>
+
+                    <p>
+                        Modern C++ has a solid concurrency library. This is increasingly important as hardware becomes more parallel.
+                    </p>
+
+                    <h3>Core concepts to learn:</h3>
+
+                    <ul>
+                        <li><code>std::thread</code> and <code>std::jthread</code></li>
+                        <li>Mutexes, locks, and condition variables</li>
+                        <li>Atomic operations and memory ordering</li>
+                        <li><code>std::async</code> and <code>std::future</code></li>
+                        <li>Thread-safe data structures</li>
+                    </ul>
+
+                    <h3>Key insight:</h3>
+
+                    <div class="note">
+                        <p>
+                            <strong>Memory ordering is subtle:</strong> Unlike Java's memory model, C++ gives you control over memory ordering for atomics. The default (<code>memory_order_seq_cst</code>) is safe but slow. Weaker orderings are faster but easy to get wrong. Start with the default and only optimize when you have benchmarks.
+                        </p>
+                    </div>
+
+                    <h3>Project: Thread pool</h3>
+
+                    <p>
+                        Build a thread pool that accepts arbitrary callables. This covers most concurrency primitives and is genuinely useful.
+                    </p>
+
+                    <h2>Stage 5: Systems Programming (Ongoing)</h2>
+
+                    <p>
+                        This is where C++ shines. Pick a domain that interests you and build something real.
+                    </p>
+
+                    <h3>Project ideas:</h3>
+
+                    <ul>
+                        <li><strong>Network programming:</strong> Build a TCP server or HTTP parser</li>
+                        <li><strong>Graphics:</strong> Software raytracer or OpenGL renderer</li>
+                        <li><strong>Embedded:</strong> Program a microcontroller</li>
+                        <li><strong>Game engine:</strong> Build a simple 2D engine</li>
+                        <li><strong>Database:</strong> Implement a B-tree or LSM tree</li>
+                    </ul>
+
+                    <p>
+                        I went with a raytracer (you can see it in my projects), and it taught me more about C++ than any tutorial. There's something about implementing mathematical algorithms in a performance-sensitive context that forces you to understand the language deeply.
+                    </p>
+
+                    <h2>Tools and Environment</h2>
+
+                    <p>
+                        Don't underestimate the importance of good tooling:
+                    </p>
+
+                    <ul>
+                        <li><strong>Compiler:</strong> GCC or Clang on Linux/macOS, MSVC on Windows. Enable all warnings (<code>-Wall -Wextra -Wpedantic</code>)</li>
+                        <li><strong>Build system:</strong> CMake is the de facto standard. Learn it early</li>
+                        <li><strong>Formatter:</strong> clang-format. Configure once, never think about formatting again</li>
+                        <li><strong>Sanitizers:</strong> AddressSanitizer and UndefinedBehaviorSanitizer catch bugs at runtime. Use them in debug builds</li>
+                        <li><strong>Static analysis:</strong> clang-tidy finds issues before you run the code</li>
+                    </ul>
+
+<pre><code># CMake example
+cmake_minimum_required(VERSION 3.20)
+project(myproject CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+add_executable(myapp main.cpp)
+
+# Enable sanitizers in debug builds
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_options(myapp PRIVATE
+        -fsanitize=address,undefined)
+    target_link_options(myapp PRIVATE
+        -fsanitize=address,undefined)
+endif()</code></pre>
+
+                    <h2>Common Mistakes to Avoid</h2>
+
+                    <ol>
+                        <li><strong>Learning C first:</strong> Modern C++ is not "C with classes." Learning C first means learning patterns that C++ explicitly discourages.</li>
+                        <li><strong>Ignoring the STL:</strong> Use <code>std::vector</code> instead of raw arrays. Use <code>std::string</code> instead of <code>char*</code>. The STL exists for good reasons.</li>
+                        <li><strong>Premature optimization:</strong> Write correct code first. Profile before optimizing. The compiler is smarter than you think.</li>
+                        <li><strong>Raw pointers for ownership:</strong> If you're writing <code>new</code> and <code>delete</code>, you're probably doing it wrong. Use smart pointers.</li>
+                        <li><strong>Not using sanitizers:</strong> Undefined behavior is silent. Sanitizers make it loud. Use them.</li>
+                    </ol>
+
+                    <h2>The Long Game</h2>
+
+                    <p>
+                        C++ is not a language you learn in a month. It's a language you grow into over years. The roadmap above will make you functional—able to read and write reasonable C++ code, understand codebases, and avoid common pitfalls.
+                    </p>
+
+                    <p>
+                        True mastery takes longer. You'll learn by reading other people's code, by debugging subtle issues, by understanding why certain idioms exist. Each version of the standard (C++20, C++23) adds new features worth learning.
+                    </p>
+
+                    <p>
+                        The investment is worth it. There's something deeply satisfying about writing code that runs close to the metal, where you understand exactly what the machine is doing. That understanding makes you a better programmer in any language.
+                    </p>
+
+                    <hr>
+
+                    <p>
+                        <em>This roadmap reflects my own learning path. Your mileage may vary—adjust based on your background and interests. The key is to build things. No amount of reading substitutes for writing code.</em>
+                    </p>
+                </div>
+
+                <footer class="article__footer">
+                    <a href="/writing/" class="article__back">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        Back to Writing
+                    </a>
+                </footer>
+            </article>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer__inner">
+            <p class="footer__text">Bolzano, Italy · 2025</p>
+            <div class="footer__links">
+                <a href="https://github.com/samnart" class="footer__link" target="_blank" rel="noopener" aria-label="GitHub">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                </a>
+                <a href="https://linkedin.com/in/samnart" class="footer__link" target="_blank" rel="noopener" aria-label="LinkedIn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                </a>
+                <a href="mailto:hello@samnart.website" class="footer__link" aria-label="Email">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

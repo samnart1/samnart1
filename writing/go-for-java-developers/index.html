@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go for Java Developers: What I Wish I Knew — Sam Nart</title>
+    <meta name="description" content="A practical guide to learning Go when coming from a Java background, covering the conceptual shifts and gotchas.">
+
+    <meta property="og:title" content="Go for Java Developers: What I Wish I Knew — Sam Nart">
+    <meta property="og:description" content="A practical guide to learning Go when coming from a Java background.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://samnart.website/writing/go-for-java-developers/">
+
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="nav">
+        <div class="container nav__inner">
+            <a href="/" class="nav__logo">sam<span>.</span>nart</a>
+
+            <button class="nav__mobile-toggle" aria-label="Toggle menu" aria-expanded="false">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+
+            <ul class="nav__links">
+                <li><a href="/writing/" class="nav__link active">Writing</a></li>
+                <li><a href="/projects/" class="nav__link">Projects</a></li>
+                <li><a href="/photography/" class="nav__link">Photography</a></li>
+                <li><a href="/shop/" class="nav__link">Shop</a></li>
+                <li><a href="/about/" class="nav__link">About</a></li>
+                <li>
+                    <button class="nav__toggle" aria-label="Toggle theme"></button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="page">
+        <div class="container container--narrow">
+            <article class="article">
+                <header class="article__header">
+                    <h1 class="article__title">Go for Java Developers: What I Wish I Knew</h1>
+                    <div class="article__meta">
+                        <span class="article__date">Aug 2025</span>
+                        <span class="article__reading-time">11 min read</span>
+                    </div>
+                </header>
+
+                <div class="article__content">
+                    <p>
+                        When I started learning Go after years of Java, I expected a quick transition. Both are statically typed, garbage collected, and designed for building services. How different could they be?
+                    </p>
+
+                    <p>
+                        Very different, it turns out. Not in syntax—that's easy to pick up—but in philosophy. Go and Java solve problems differently, and fighting that difference makes for frustrating code. This is what I wish someone had told me.
+                    </p>
+
+                    <h2>Forget Everything About OOP</h2>
+
+                    <p>
+                        This was my biggest stumbling block. Coming from Java, I instinctively reached for classes, inheritance, and design patterns. Go doesn't do OOP the way Java does.
+                    </p>
+
+                    <h3>There are no classes</h3>
+
+                    <p>
+                        Go has structs with methods, which feels similar but isn't. You can't have constructors (use factory functions), there's no <code>this</code> (methods have explicit receivers), and there's no inheritance.
+                    </p>
+
+<pre><code>// Java thinking
+public class User {
+    private String name;
+
+    public User(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+}
+
+// Go thinking
+type User struct {
+    Name string  // Exported if uppercase
+}
+
+func NewUser(name string) *User {
+    return &User{Name: name}
+}
+
+func (u *User) GetName() string {
+    return u.Name
+}
+</code></pre>
+
+                    <h3>Composition over inheritance</h3>
+
+                    <p>
+                        Go doesn't have inheritance. At all. You can embed structs, which is not inheritance—it's composition that happens to promote methods.
+                    </p>
+
+<pre><code>type Animal struct {
+    Name string
+}
+
+func (a *Animal) Speak() string {
+    return "..."
+}
+
+type Dog struct {
+    Animal  // Embedding, not inheritance
+    Breed string
+}
+
+// Dog now has Animal's fields and methods
+dog := Dog{Animal: Animal{Name: "Rex"}, Breed: "Shepherd"}
+dog.Name    // Promoted from Animal
+dog.Speak() // Promoted from Animal</code></pre>
+
+                    <p>
+                        The mental shift: design with interfaces and composition. If you're trying to create class hierarchies, you're thinking in the wrong paradigm.
+                    </p>
+
+                    <h2>Interfaces Work Differently</h2>
+
+                    <p>
+                        Go interfaces are implicit. You don't declare that a type implements an interface—if it has the right methods, it implements the interface. This is both liberating and confusing.
+                    </p>
+
+<pre><code>type Reader interface {
+    Read(p []byte) (n int, err error)
+}
+
+// This type implements Reader without declaring it
+type FileReader struct {
+    file *os.File
+}
+
+func (f *FileReader) Read(p []byte) (int, error) {
+    return f.file.Read(p)
+}</code></pre>
+
+                    <p>
+                        Key insight: <strong>interfaces belong to the consumer, not the producer</strong>. In Java, the package that defines a type also defines its interfaces. In Go, the package that <em>uses</em> a type often defines the interface it needs.
+                    </p>
+
+                    <div class="note">
+                        <p>
+                            <strong>Accept interfaces, return structs.</strong> This Go proverb was confusing until I understood that interfaces should be small (often one method) and defined where they're needed, not in advance.
+                        </p>
+                    </div>
+
+                    <h2>Error Handling</h2>
+
+                    <p>
+                        Go's error handling is the most contentious topic for Java developers. No exceptions. No try-catch. Just return values.
+                    </p>
+
+<pre><code>// Java
+try {
+    User user = repository.findById(id);
+    return user;
+} catch (NotFoundException e) {
+    return null;
+}
+
+// Go
+user, err := repository.FindById(id)
+if err != nil {
+    return nil, err
+}
+return user, nil</code></pre>
+
+                    <p>
+                        Yes, you write <code>if err != nil</code> constantly. Yes, it's verbose. But it makes error handling explicit and local. You always know exactly where errors can occur and how they're handled.
+                    </p>
+
+                    <h3>Wrap errors for context</h3>
+
+                    <p>
+                        Go 1.13 added error wrapping. Use it. Bare errors lose context as they propagate.
+                    </p>
+
+<pre><code>user, err := repository.FindById(id)
+if err != nil {
+    return nil, fmt.Errorf("loading user %s: %w", id, err)
+}
+
+// Later, you can unwrap to check the original error
+if errors.Is(err, sql.ErrNoRows) {
+    // Handle not found
+}</code></pre>
+
+                    <h2>Concurrency Is First-Class</h2>
+
+                    <p>
+                        This is where Go shines. Goroutines and channels make concurrency approachable in ways that Java's threading model doesn't.
+                    </p>
+
+<pre><code>// Java (simplified)
+ExecutorService executor = Executors.newFixedThreadPool(10);
+Future<Result> future = executor.submit(() -> doWork());
+Result result = future.get();
+
+// Go
+result := make(chan Result)
+go func() {
+    result <- doWork()
+}()
+r := <-result</code></pre>
+
+                    <p>
+                        Goroutines are cheap—you can spawn thousands without thinking. Channels provide safe communication between them. The <code>select</code> statement lets you wait on multiple channels.
+                    </p>
+
+<pre><code>select {
+case result := <-results:
+    handleResult(result)
+case err := <-errors:
+    handleError(err)
+case <-ctx.Done():
+    return ctx.Err()
+case <-time.After(5 * time.Second):
+    return ErrTimeout
+}</code></pre>
+
+                    <h2>The Standard Library Is Enough</h2>
+
+                    <p>
+                        In Java, you reach for Spring, Hibernate, Guava. In Go, the standard library covers most needs. HTTP servers, JSON handling, templating, testing—all built in.
+                    </p>
+
+<pre><code>// A complete HTTP server
+func main() {
+    http.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request) {
+        json.NewEncoder(w).Encode(map[string]string{
+            "message": "Hello, World!",
+        })
+    })
+
+    log.Fatal(http.ListenAndServe(":8080", nil))
+}</code></pre>
+
+                    <p>
+                        This doesn't mean Go has no ecosystem—there are excellent libraries for routing, databases, and more. But the pressure to add dependencies is lower. Fewer dependencies means faster builds and less maintenance burden.
+                    </p>
+
+                    <h2>No Generics (Until Recently)</h2>
+
+                    <p>
+                        Go added generics in 1.18, but the ecosystem still reflects years without them. You'll see <code>interface{}</code> (now spelled <code>any</code>) in older code, which is the empty interface that accepts anything—Go's equivalent of <code>Object</code>.
+                    </p>
+
+<pre><code>// Old style (pre-generics)
+func Map(slice []interface{}, f func(interface{}) interface{}) []interface{}
+
+// New style (with generics)
+func Map[T, U any](slice []T, f func(T) U) []U</code></pre>
+
+                    <p>
+                        Use generics when they make code clearer. Don't over-genericize—Go still values simplicity over flexibility.
+                    </p>
+
+                    <h2>Practical Gotchas</h2>
+
+                    <h3>nil interfaces are tricky</h3>
+
+                    <p>
+                        An interface value is nil only if both the type and value are nil. This causes subtle bugs:
+                    </p>
+
+<pre><code>var ptr *MyStruct = nil
+var iface interface{} = ptr
+fmt.Println(iface == nil) // false! The type is *MyStruct</code></pre>
+
+                    <h3>Slices are references</h3>
+
+                    <p>
+                        Slices contain a pointer to an underlying array. Appending might or might not create a new array. If you need to pass a slice without it being modified, copy it.
+                    </p>
+
+<pre><code>original := []int{1, 2, 3}
+copy := make([]int, len(original))
+copy(copy, original)</code></pre>
+
+                    <h3>Range copies values</h3>
+
+                    <p>
+                        When you range over a slice, you get copies of the values, not references:
+                    </p>
+
+<pre><code>users := []User{{Name: "Alice"}, {Name: "Bob"}}
+for _, u := range users {
+    u.Name = "Changed"  // Modifies the copy, not the original
+}
+// users still has Alice and Bob
+
+// To modify in place, use the index
+for i := range users {
+    users[i].Name = "Changed"
+}</code></pre>
+
+                    <h2>What I Miss From Java</h2>
+
+                    <p>
+                        It's not all roses. Things I still miss:
+                    </p>
+
+                    <ul>
+                        <li><strong>Enums with methods</strong> — Go's constant iota is limited compared to Java enums</li>
+                        <li><strong>Annotation processing</strong> — No code generation at compile time (though go:generate helps)</li>
+                        <li><strong>IDE refactoring</strong> — Still catching up to IntelliJ's capabilities</li>
+                        <li><strong>Mature testing libraries</strong> — JUnit and Mockito are more powerful than Go's testing package</li>
+                    </ul>
+
+                    <h2>What I Prefer About Go</h2>
+
+                    <ul>
+                        <li><strong>Fast compilation</strong> — Seconds, not minutes</li>
+                        <li><strong>Single binary deployment</strong> — No runtime dependencies</li>
+                        <li><strong>Built-in formatting</strong> — gofmt ends all style debates</li>
+                        <li><strong>Explicit error handling</strong> — No hidden exceptions</li>
+                        <li><strong>Simple concurrency</strong> — Goroutines and channels are elegant</li>
+                        <li><strong>Smaller codebases</strong> — Less ceremony means less code</li>
+                    </ul>
+
+                    <h2>The Transition Path</h2>
+
+                    <p>
+                        If you're making the switch, here's what helped me:
+                    </p>
+
+                    <ol>
+                        <li><strong>Read "Effective Go"</strong> — Still the best introduction to idiomatic Go</li>
+                        <li><strong>Build something real</strong> — A CLI tool or small HTTP service</li>
+                        <li><strong>Read standard library code</strong> — It's well-written and educational</li>
+                        <li><strong>Accept the simplicity</strong> — Stop looking for the "right" abstraction. Write simple code</li>
+                        <li><strong>Embrace the verbosity</strong> — Explicit is better than magic</li>
+                    </ol>
+
+                    <p>
+                        The biggest shift is philosophical. Java encourages abstraction, patterns, and flexibility. Go encourages simplicity, explicitness, and practicality. Neither is wrong—they're different tools for different contexts.
+                    </p>
+
+                    <p>
+                        I now use both regularly. Java for complex business logic where its type system shines. Go for services, tools, and anything that needs to be fast, simple, and reliable.
+                    </p>
+
+                    <hr>
+
+                    <p>
+                        <em>For concrete examples, check out my <a href="https://github.com/samnart/gtfs-transformer">gtfs-transformer</a> project—a real-time transit data processor written in Go.</em>
+                    </p>
+                </div>
+
+                <footer class="article__footer">
+                    <a href="/writing/" class="article__back">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        Back to Writing
+                    </a>
+                </footer>
+            </article>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer__inner">
+            <p class="footer__text">Bolzano, Italy · 2025</p>
+            <div class="footer__links">
+                <a href="https://github.com/samnart" class="footer__link" target="_blank" rel="noopener" aria-label="GitHub">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                </a>
+                <a href="https://linkedin.com/in/samnart" class="footer__link" target="_blank" rel="noopener" aria-label="LinkedIn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                </a>
+                <a href="mailto:hello@samnart.website" class="footer__link" aria-label="Email">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

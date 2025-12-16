@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Programming in C: Building a TCP Server — Sam Nart</title>
+    <meta name="description" content="A hands-on guide to building a TCP server in C, covering sockets, I/O multiplexing, and connection handling.">
+
+    <meta property="og:title" content="Network Programming in C: Building a TCP Server — Sam Nart">
+    <meta property="og:description" content="A hands-on guide to building a TCP server in C.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://samnart.website/writing/network-programming-c/">
+
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="nav">
+        <div class="container nav__inner">
+            <a href="/" class="nav__logo">sam<span>.</span>nart</a>
+
+            <button class="nav__mobile-toggle" aria-label="Toggle menu" aria-expanded="false">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+
+            <ul class="nav__links">
+                <li><a href="/writing/" class="nav__link active">Writing</a></li>
+                <li><a href="/projects/" class="nav__link">Projects</a></li>
+                <li><a href="/photography/" class="nav__link">Photography</a></li>
+                <li><a href="/shop/" class="nav__link">Shop</a></li>
+                <li><a href="/about/" class="nav__link">About</a></li>
+                <li>
+                    <button class="nav__toggle" aria-label="Toggle theme"></button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="page">
+        <div class="container container--narrow">
+            <article class="article">
+                <header class="article__header">
+                    <h1 class="article__title">Network Programming in C: Building a TCP Server</h1>
+                    <div class="article__meta">
+                        <span class="article__date">Jun 2025</span>
+                        <span class="article__reading-time">14 min read</span>
+                    </div>
+                </header>
+
+                <div class="article__content">
+                    <p>
+                        Every time you open a webpage, send a message, or stream a video, you're using TCP. It's the backbone of the internet—reliable, ordered, connection-oriented data delivery. And yet, most programmers never touch the socket layer directly.
+                    </p>
+
+                    <p>
+                        I built a TCP server from scratch to understand what happens beneath the abstractions. This article walks through the process, from raw sockets to handling multiple clients. The code is in C because that's where the system calls live.
+                    </p>
+
+                    <h2>What We're Building</h2>
+
+                    <p>
+                        We'll build a TCP echo server—it receives data from clients and sends it back. Simple, but it covers all the fundamentals: socket creation, binding, listening, accepting connections, and I/O.
+                    </p>
+
+                    <p>
+                        By the end, we'll have a server that:
+                    </p>
+
+                    <ul>
+                        <li>Handles multiple concurrent clients</li>
+                        <li>Uses non-blocking I/O with epoll</li>
+                        <li>Handles errors gracefully</li>
+                        <li>Cleans up resources properly</li>
+                    </ul>
+
+                    <h2>The Basics: Socket Creation</h2>
+
+                    <p>
+                        A socket is an endpoint for communication. Creating one is the first step:
+                    </p>
+
+<pre><code>#include &lt;sys/socket.h&gt;
+#include &lt;netinet/in.h&gt;
+
+int main() {
+    // Create a socket
+    // AF_INET = IPv4, SOCK_STREAM = TCP
+    int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_fd == -1) {
+        perror("socket failed");
+        return 1;
+    }
+
+    // Allow address reuse (helpful during development)
+    int opt = 1;
+    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+}</code></pre>
+
+                    <p>
+                        <code>socket()</code> returns a file descriptor—an integer representing the socket. Everything in Unix is a file, including network connections.
+                    </p>
+
+                    <h2>Binding to an Address</h2>
+
+                    <p>
+                        A server needs an address to listen on. We bind the socket to a port:
+                    </p>
+
+<pre><code>struct sockaddr_in address;
+address.sin_family = AF_INET;
+address.sin_addr.s_addr = INADDR_ANY;  // Accept connections on any interface
+address.sin_port = htons(8080);         // Port 8080, network byte order
+
+if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) &lt; 0) {
+    perror("bind failed");
+    return 1;
+}</code></pre>
+
+                    <p>
+                        Note <code>htons()</code>—it converts the port number to network byte order (big-endian). Network protocols use big-endian; your machine might use little-endian. Always convert.
+                    </p>
+
+                    <h2>Listening and Accepting</h2>
+
+                    <p>
+                        Once bound, the socket can listen for incoming connections:
+                    </p>
+
+<pre><code>// Start listening, with a backlog of 10 pending connections
+if (listen(server_fd, 10) &lt; 0) {
+    perror("listen failed");
+    return 1;
+}
+
+printf("Server listening on port 8080\n");
+
+// Accept a connection
+struct sockaddr_in client_addr;
+socklen_t client_len = sizeof(client_addr);
+int client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &client_len);
+
+if (client_fd &lt; 0) {
+    perror("accept failed");
+    return 1;
+}
+
+printf("Client connected\n");</code></pre>
+
+                    <p>
+                        <code>accept()</code> blocks until a client connects. It returns a <em>new</em> file descriptor for the client connection. The original <code>server_fd</code> continues listening for more clients.
+                    </p>
+
+                    <h2>Reading and Writing</h2>
+
+                    <p>
+                        With a connected client, we can read and write data. For an echo server:
+                    </p>
+
+<pre><code>char buffer[1024];
+while (1) {
+    // Read from client
+    ssize_t bytes_read = read(client_fd, buffer, sizeof(buffer) - 1);
+
+    if (bytes_read &lt;= 0) {
+        if (bytes_read == 0) {
+            printf("Client disconnected\n");
+        } else {
+            perror("read failed");
+        }
+        break;
+    }
+
+    buffer[bytes_read] = '\0';
+    printf("Received: %s", buffer);
+
+    // Echo back to client
+    write(client_fd, buffer, bytes_read);
+}
+
+close(client_fd);</code></pre>
+
+                    <p>
+                        This works but has a problem: it handles only one client. While talking to one client, other clients wait.
+                    </p>
+
+                    <h2>The Concurrency Problem</h2>
+
+                    <p>
+                        A real server handles many clients simultaneously. There are several approaches:
+                    </p>
+
+                    <ul>
+                        <li><strong>Fork per connection</strong> — Simple but expensive (process overhead)</li>
+                        <li><strong>Thread per connection</strong> — Better, but still limited (thread overhead)</li>
+                        <li><strong>Event-driven I/O</strong> — Efficient, handles thousands of connections</li>
+                    </ul>
+
+                    <p>
+                        We'll use epoll, Linux's event notification mechanism for scalable I/O.
+                    </p>
+
+                    <h2>Non-Blocking Sockets and epoll</h2>
+
+                    <p>
+                        First, we make our sockets non-blocking. A blocking socket waits until data is available. A non-blocking socket returns immediately with <code>EAGAIN</code> if no data is ready.
+                    </p>
+
+<pre><code>#include &lt;fcntl.h&gt;
+
+void set_nonblocking(int fd) {
+    int flags = fcntl(fd, F_GETFL, 0);
+    fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+}</code></pre>
+
+                    <p>
+                        Now, epoll. It lets us wait on multiple file descriptors efficiently:
+                    </p>
+
+<pre><code>#include &lt;sys/epoll.h&gt;
+
+#define MAX_EVENTS 64
+
+int epoll_fd = epoll_create1(0);
+if (epoll_fd == -1) {
+    perror("epoll_create1");
+    return 1;
+}
+
+// Add the server socket to epoll
+struct epoll_event ev;
+ev.events = EPOLLIN;  // Notify on readable
+ev.data.fd = server_fd;
+epoll_ctl(epoll_fd, EPOLL_CTL_ADD, server_fd, &ev);</code></pre>
+
+                    <p>
+                        The event loop waits for activity on any registered socket:
+                    </p>
+
+<pre><code>struct epoll_event events[MAX_EVENTS];
+
+while (1) {
+    int nfds = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
+
+    for (int i = 0; i &lt; nfds; i++) {
+        if (events[i].data.fd == server_fd) {
+            // New connection on server socket
+            int client_fd = accept(server_fd, NULL, NULL);
+            set_nonblocking(client_fd);
+
+            // Add client to epoll
+            ev.events = EPOLLIN | EPOLLET;  // Edge-triggered
+            ev.data.fd = client_fd;
+            epoll_ctl(epoll_fd, EPOLL_CTL_ADD, client_fd, &ev);
+
+        } else {
+            // Data from existing client
+            handle_client(events[i].data.fd);
+        }
+    }
+}</code></pre>
+
+                    <h2>Edge-Triggered vs Level-Triggered</h2>
+
+                    <p>
+                        Notice <code>EPOLLET</code>? That's edge-triggered mode. The difference matters:
+                    </p>
+
+                    <ul>
+                        <li><strong>Level-triggered:</strong> epoll notifies as long as data is available</li>
+                        <li><strong>Edge-triggered:</strong> epoll notifies only when new data arrives</li>
+                    </ul>
+
+                    <p>
+                        Edge-triggered is more efficient but requires you to read all available data in one go:
+                    </p>
+
+<pre><code>void handle_client(int fd) {
+    char buffer[1024];
+
+    while (1) {
+        ssize_t bytes = read(fd, buffer, sizeof(buffer));
+
+        if (bytes == -1) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                // No more data available right now
+                break;
+            }
+            perror("read");
+            close(fd);
+            return;
+        }
+
+        if (bytes == 0) {
+            // Connection closed
+            close(fd);
+            return;
+        }
+
+        // Echo back
+        write(fd, buffer, bytes);
+    }
+}</code></pre>
+
+                    <h2>Graceful Shutdown</h2>
+
+                    <p>
+                        A proper server handles SIGINT (Ctrl+C) gracefully, closing all connections:
+                    </p>
+
+<pre><code>#include &lt;signal.h&gt;
+
+volatile sig_atomic_t running = 1;
+
+void handle_signal(int sig) {
+    running = 0;
+}
+
+int main() {
+    signal(SIGINT, handle_signal);
+    signal(SIGTERM, handle_signal);
+
+    // ... setup code ...
+
+    while (running) {
+        int nfds = epoll_wait(epoll_fd, events, MAX_EVENTS, 1000);  // 1s timeout
+
+        if (nfds == -1) {
+            if (errno == EINTR) continue;  // Interrupted by signal
+            break;
+        }
+
+        // ... handle events ...
+    }
+
+    // Cleanup
+    close(server_fd);
+    close(epoll_fd);
+    printf("Server shut down\n");
+}</code></pre>
+
+                    <h2>Putting It All Together</h2>
+
+                    <p>
+                        The complete server structure:
+                    </p>
+
+<pre><code>int main() {
+    // 1. Create server socket
+    int server_fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
+
+    // 2. Set socket options
+    int opt = 1;
+    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
+    // 3. Bind to address
+    struct sockaddr_in addr = {
+        .sin_family = AF_INET,
+        .sin_addr.s_addr = INADDR_ANY,
+        .sin_port = htons(8080)
+    };
+    bind(server_fd, (struct sockaddr *)&addr, sizeof(addr));
+
+    // 4. Listen
+    listen(server_fd, SOMAXCONN);
+
+    // 5. Create epoll instance
+    int epoll_fd = epoll_create1(0);
+
+    // 6. Add server to epoll
+    struct epoll_event ev = {.events = EPOLLIN, .data.fd = server_fd};
+    epoll_ctl(epoll_fd, EPOLL_CTL_ADD, server_fd, &ev);
+
+    // 7. Event loop
+    struct epoll_event events[MAX_EVENTS];
+    while (running) {
+        int n = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
+        for (int i = 0; i &lt; n; i++) {
+            if (events[i].data.fd == server_fd) {
+                accept_connection(server_fd, epoll_fd);
+            } else {
+                handle_client(events[i].data.fd);
+            }
+        }
+    }
+
+    // 8. Cleanup
+    close(server_fd);
+    close(epoll_fd);
+}</code></pre>
+
+                    <h2>What I Learned</h2>
+
+                    <p>
+                        Building this taught me things no tutorial covered:
+                    </p>
+
+                    <h3>1. Error handling is half the code</h3>
+
+                    <p>
+                        Network code fails in countless ways. Clients disconnect unexpectedly. Sockets become invalid. Signals interrupt system calls. Robust error handling isn't optional.
+                    </p>
+
+                    <h3>2. Buffering is complicated</h3>
+
+                    <p>
+                        TCP is a stream, not a message protocol. You might receive half a message, or multiple messages at once. Real servers need proper buffer management and message framing.
+                    </p>
+
+                    <h3>3. Resource limits matter</h3>
+
+                    <p>
+                        File descriptors are limited. Memory is limited. Connections per second are limited. Production servers need to handle these limits gracefully.
+                    </p>
+
+                    <h3>4. The kernel does a lot</h3>
+
+                    <p>
+                        TCP retransmission, flow control, congestion control—the kernel handles all of this. Understanding what happens at the socket layer gives you appreciation for what you don't have to implement.
+                    </p>
+
+                    <h2>Going Further</h2>
+
+                    <p>
+                        This echo server is a foundation. From here, you could:
+                    </p>
+
+                    <ul>
+                        <li>Implement a protocol (HTTP, Redis, etc.)</li>
+                        <li>Add TLS encryption</li>
+                        <li>Benchmark with tools like wrk or netperf</li>
+                        <li>Compare with io_uring (Linux's newer async I/O)</li>
+                        <li>Port to other systems (kqueue on macOS/BSD)</li>
+                    </ul>
+
+                    <p>
+                        The full source code is on GitHub as part of my <a href="https://github.com/samnart/tcp-server">tcp-server</a> project, including a C++ version that uses modern features while keeping the same architecture.
+                    </p>
+
+                    <hr>
+
+                    <p>
+                        <em>Network programming is where software meets the physical world—cables, packets, latency. It's humbling and fascinating in equal measure.</em>
+                    </p>
+                </div>
+
+                <footer class="article__footer">
+                    <a href="/writing/" class="article__back">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        Back to Writing
+                    </a>
+                </footer>
+            </article>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer__inner">
+            <p class="footer__text">Bolzano, Italy · 2025</p>
+            <div class="footer__links">
+                <a href="https://github.com/samnart" class="footer__link" target="_blank" rel="noopener" aria-label="GitHub">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                </a>
+                <a href="https://linkedin.com/in/samnart" class="footer__link" target="_blank" rel="noopener" aria-label="LinkedIn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                </a>
+                <a href="mailto:hello@samnart.website" class="footer__link" aria-label="Email">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
