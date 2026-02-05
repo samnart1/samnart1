@@ -1,185 +1,308 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-theme="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bike Sharing API — Sam Nart</title>
-    <meta name="description" content="REST API for bike sharing data aggregation. Supports multiple providers and real-time availability tracking.">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Bike Sharing API — Sam Nart</title>
+        <meta
+            name="description"
+            content="REST API for bike sharing data aggregation. Supports multiple providers and real-time availability tracking."
+        />
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="Bike Sharing API — Sam Nart">
-    <meta property="og:description" content="REST API aggregating bike sharing data from multiple providers.">
-    <meta property="og:type" content="article">
-    <meta property="og:url" content="https://samnart.website/projects/bike-sharing-api/">
+        <!-- Open Graph -->
+        <meta property="og:title" content="Bike Sharing API — Sam Nart" />
+        <meta
+            property="og:description"
+            content="REST API aggregating bike sharing data from multiple providers."
+        />
+        <meta property="og:type" content="article" />
+        <meta
+            property="og:url"
+            content="https://samnart.website/projects/bike-sharing-api/"
+        />
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+        <!-- Favicon -->
+        <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap"
+            rel="stylesheet"
+        />
 
-    <!-- Styles -->
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-    <!-- Navigation -->
-    <nav class="nav">
-        <div class="container nav__inner">
-            <a href="/" class="nav__logo">sam<span>.</span>nart</a>
+        <!-- Styles -->
+        <link rel="stylesheet" href="/css/style.css" />
+    </head>
+    <body>
+        <!-- Navigation -->
+        <div id="nav" aria-busy="true"></div>
 
-            <button class="nav__mobile-toggle" aria-label="Toggle menu" aria-expanded="false">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                </svg>
-            </button>
-
-            <ul class="nav__links">
-                <li><a href="/writing/" class="nav__link">Writing</a></li>
-                <li><a href="/projects/" class="nav__link active">Projects</a></li>
-                <li><a href="/photography/" class="nav__link">Photography</a></li>
-                <li><a href="/log/" class="nav__link">Log</a></li>
-                <li><a href="/about/" class="nav__link">About</a></li>
-                <li>
-                    <button class="nav__toggle" aria-label="Toggle theme">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
-                        </svg>
-                    </button>
-                </li>
-            </ul>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="page">
-        <div class="container">
-            <article class="project-detail">
-                <!-- Header -->
-                <header class="project-detail__header">
-                    <nav class="project-detail__breadcrumb">
-                        <a href="/">Home</a>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
-                        <a href="/projects/">Projects</a>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
-                        <span>Bike Sharing API</span>
-                    </nav>
-
-                    <div class="project-detail__top">
-                        <div class="project-detail__title-group">
-                            <h1 class="project-detail__title">Bike Sharing API</h1>
-                            <div class="project-detail__meta">
-                                <span class="project-detail__lang">Go</span>
-                                <div class="project-detail__tags">
-                                    <span class="project-detail__tag">API</span>
-                                    <span class="project-detail__tag">Mobility</span>
-                                    <span class="project-detail__tag">Aggregation</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <a href="https://github.com/samnart/bike-sharing-api" class="project-detail__github" target="_blank" rel="noopener">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+        <!-- Main Content -->
+        <main class="page">
+            <div class="container">
+                <article class="project-detail">
+                    <!-- Header -->
+                    <header class="project-detail__header">
+                        <nav class="project-detail__breadcrumb">
+                            <a href="/">Home</a>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9 5l7 7-7 7"
+                                />
                             </svg>
-                            View on GitHub
-                        </a>
-                    </div>
+                            <a href="/projects/">Projects</a>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9 5l7 7-7 7"
+                                />
+                            </svg>
+                            <span>Bike Sharing API</span>
+                        </nav>
 
-                    <p class="project-detail__intro">
-                        A REST API that aggregates bike sharing data from multiple providers into a unified interface. Built for the Open Data Hub to provide real-time bike and station availability across different sharing systems in South Tyrol.
-                    </p>
-                </header>
-
-                <!-- Content -->
-                <div class="project-detail__content">
-                    <!-- Overview -->
-                    <section class="project-detail__section">
-                        <h2 class="project-detail__section-title">Overview</h2>
-                        <div class="project-detail__text">
-                            <p>
-                                Cities often have multiple bike sharing providers, each with their own API format and data model. This creates friction for developers building mobility apps and for cities trying to analyze transportation patterns.
-                            </p>
-                            <p>
-                                This API solves that problem by providing a single endpoint that aggregates data from all providers, normalizing station information, bike availability, and e-bike battery levels into a consistent format.
-                            </p>
-                        </div>
-                    </section>
-
-                    <!-- Key Features -->
-                    <section class="project-detail__section">
-                        <h2 class="project-detail__section-title">Key Features</h2>
-                        <div class="project-detail__features">
-                            <div class="project-detail__feature">
-                                <div class="project-detail__feature-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                                    </svg>
-                                </div>
-                                <div class="project-detail__feature-content">
-                                    <h4>Multi-Provider Support</h4>
-                                    <p>Integrates with GBFS, custom APIs, and legacy systems from multiple bike sharing operators.</p>
+                        <div class="project-detail__top">
+                            <div class="project-detail__title-group">
+                                <h1 class="project-detail__title">
+                                    Bike Sharing API
+                                </h1>
+                                <div class="project-detail__meta">
+                                    <span class="project-detail__lang">Go</span>
+                                    <div class="project-detail__tags">
+                                        <span class="project-detail__tag"
+                                            >API</span
+                                        >
+                                        <span class="project-detail__tag"
+                                            >Mobility</span
+                                        >
+                                        <span class="project-detail__tag"
+                                            >Aggregation</span
+                                        >
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="project-detail__feature">
-                                <div class="project-detail__feature-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                    </svg>
-                                </div>
-                                <div class="project-detail__feature-content">
-                                    <h4>Geospatial Queries</h4>
-                                    <p>Find nearby stations using PostGIS spatial queries with configurable radius and result limits.</p>
-                                </div>
-                            </div>
-
-                            <div class="project-detail__feature">
-                                <div class="project-detail__feature-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                                    </svg>
-                                </div>
-                                <div class="project-detail__feature-content">
-                                    <h4>Real-time Updates</h4>
-                                    <p>Polls providers every 30 seconds to keep availability data fresh, with WebSocket support for push updates.</p>
-                                </div>
-                            </div>
-
-                            <div class="project-detail__feature">
-                                <div class="project-detail__feature-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                                    </svg>
-                                </div>
-                                <div class="project-detail__feature-content">
-                                    <h4>Historical Analytics</h4>
-                                    <p>Stores historical data for usage pattern analysis, peak hour identification, and capacity planning.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- API Design -->
-                    <section class="project-detail__section">
-                        <h2 class="project-detail__section-title">API Design</h2>
-                        <div class="project-detail__text">
-                            <p>
-                                The API follows REST conventions with consistent response formats. Endpoints support filtering, pagination, and field selection to minimize payload sizes for mobile clients.
-                            </p>
-                            <p>
-                                <strong>GBFS Compliance:</strong> The API also exposes a GBFS-compatible feed, making it easy for third-party apps like Google Maps to consume the aggregated data directly.
-                            </p>
+                            <a
+                                href="https://github.com/samnart/bike-sharing-api"
+                                class="project-detail__github"
+                                target="_blank"
+                                rel="noopener"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                >
+                                    <path
+                                        d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+                                    />
+                                </svg>
+                                View on GitHub
+                            </a>
                         </div>
 
-                        <div class="project-detail__code">
-                            <pre><code>GET /api/v1/stations?lat=46.498&lng=11.354&radius=500
+                        <p class="project-detail__intro">
+                            A REST API that aggregates bike sharing data from
+                            multiple providers into a unified interface. Built
+                            for the Open Data Hub to provide real-time bike and
+                            station availability across different sharing
+                            systems in South Tyrol.
+                        </p>
+                    </header>
+
+                    <!-- Content -->
+                    <div class="project-detail__content">
+                        <!-- Overview -->
+                        <section class="project-detail__section">
+                            <h2 class="project-detail__section-title">
+                                Overview
+                            </h2>
+                            <div class="project-detail__text">
+                                <p>
+                                    Cities often have multiple bike sharing
+                                    providers, each with their own API format
+                                    and data model. This creates friction for
+                                    developers building mobility apps and for
+                                    cities trying to analyze transportation
+                                    patterns.
+                                </p>
+                                <p>
+                                    This API solves that problem by providing a
+                                    single endpoint that aggregates data from
+                                    all providers, normalizing station
+                                    information, bike availability, and e-bike
+                                    battery levels into a consistent format.
+                                </p>
+                            </div>
+                        </section>
+
+                        <!-- Key Features -->
+                        <section class="project-detail__section">
+                            <h2 class="project-detail__section-title">
+                                Key Features
+                            </h2>
+                            <div class="project-detail__features">
+                                <div class="project-detail__feature">
+                                    <div class="project-detail__feature-icon">
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <div
+                                        class="project-detail__feature-content"
+                                    >
+                                        <h4>Multi-Provider Support</h4>
+                                        <p>
+                                            Integrates with GBFS, custom APIs,
+                                            and legacy systems from multiple
+                                            bike sharing operators.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="project-detail__feature">
+                                    <div class="project-detail__feature-icon">
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                            />
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <div
+                                        class="project-detail__feature-content"
+                                    >
+                                        <h4>Geospatial Queries</h4>
+                                        <p>
+                                            Find nearby stations using PostGIS
+                                            spatial queries with configurable
+                                            radius and result limits.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="project-detail__feature">
+                                    <div class="project-detail__feature-icon">
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M13 10V3L4 14h7v7l9-11h-7z"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <div
+                                        class="project-detail__feature-content"
+                                    >
+                                        <h4>Real-time Updates</h4>
+                                        <p>
+                                            Polls providers every 30 seconds to
+                                            keep availability data fresh, with
+                                            WebSocket support for push updates.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="project-detail__feature">
+                                    <div class="project-detail__feature-icon">
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <div
+                                        class="project-detail__feature-content"
+                                    >
+                                        <h4>Historical Analytics</h4>
+                                        <p>
+                                            Stores historical data for usage
+                                            pattern analysis, peak hour
+                                            identification, and capacity
+                                            planning.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- API Design -->
+                        <section class="project-detail__section">
+                            <h2 class="project-detail__section-title">
+                                API Design
+                            </h2>
+                            <div class="project-detail__text">
+                                <p>
+                                    The API follows REST conventions with
+                                    consistent response formats. Endpoints
+                                    support filtering, pagination, and field
+                                    selection to minimize payload sizes for
+                                    mobile clients.
+                                </p>
+                                <p>
+                                    <strong>GBFS Compliance:</strong> The API
+                                    also exposes a GBFS-compatible feed, making
+                                    it easy for third-party apps like Google
+                                    Maps to consume the aggregated data
+                                    directly.
+                                </p>
+                            </div>
+
+                            <div class="project-detail__code">
+                                <pre><code>GET /api/v1/stations?lat=46.498&lng=11.354&radius=500
 
 {
   "stations": [
@@ -194,74 +317,85 @@
     }
   ]
 }</code></pre>
-                        </div>
-                    </section>
+                            </div>
+                        </section>
 
-                    <!-- Tech Stack -->
-                    <section class="project-detail__section">
-                        <h2 class="project-detail__section-title">Tech Stack</h2>
-                        <div class="project-detail__stack">
-                            <span class="project-detail__stack-item">Go</span>
-                            <span class="project-detail__stack-item">Gin</span>
-                            <span class="project-detail__stack-item">PostgreSQL</span>
-                            <span class="project-detail__stack-item">PostGIS</span>
-                            <span class="project-detail__stack-item">Redis</span>
-                            <span class="project-detail__stack-item">Docker</span>
-                        </div>
-                    </section>
+                        <!-- Tech Stack -->
+                        <section class="project-detail__section">
+                            <h2 class="project-detail__section-title">
+                                Tech Stack
+                            </h2>
+                            <div class="project-detail__stack">
+                                <span class="project-detail__stack-item"
+                                    >Go</span
+                                >
+                                <span class="project-detail__stack-item"
+                                    >Gin</span
+                                >
+                                <span class="project-detail__stack-item"
+                                    >PostgreSQL</span
+                                >
+                                <span class="project-detail__stack-item"
+                                    >PostGIS</span
+                                >
+                                <span class="project-detail__stack-item"
+                                    >Redis</span
+                                >
+                                <span class="project-detail__stack-item"
+                                    >Docker</span
+                                >
+                            </div>
+                        </section>
 
-                    <!-- What I Learned -->
-                    <section class="project-detail__section">
-                        <h2 class="project-detail__section-title">What I Learned</h2>
-                        <div class="project-detail__text">
-                            <p>
-                                This project taught me about the challenges of data aggregation: handling different update frequencies, dealing with provider outages gracefully, and merging overlapping data sets without duplicates.
-                            </p>
-                            <p>
-                                I also learned about spatial databases and how PostGIS enables efficient geographic queries that would be impractical with traditional SQL.
-                            </p>
-                        </div>
-                    </section>
-                </div>
+                        <!-- What I Learned -->
+                        <section class="project-detail__section">
+                            <h2 class="project-detail__section-title">
+                                What I Learned
+                            </h2>
+                            <div class="project-detail__text">
+                                <p>
+                                    This project taught me about the challenges
+                                    of data aggregation: handling different
+                                    update frequencies, dealing with provider
+                                    outages gracefully, and merging overlapping
+                                    data sets without duplicates.
+                                </p>
+                                <p>
+                                    I also learned about spatial databases and
+                                    how PostGIS enables efficient geographic
+                                    queries that would be impractical with
+                                    traditional SQL.
+                                </p>
+                            </div>
+                        </section>
+                    </div>
 
-                <!-- Footer Navigation -->
-                <footer class="project-detail__footer">
-                    <nav class="project-detail__nav">
-                        <a href="/projects/gtfs-transformer/" class="project-detail__nav-link">
-                            <span>Previous Project</span>
-                            <span>gtfs-transformer</span>
-                        </a>
-                        <a href="/projects/resilience-benchmark/" class="project-detail__nav-link project-detail__nav-link--next">
-                            <span>Next Project</span>
-                            <span>resilience-benchmark</span>
-                        </a>
-                    </nav>
-                </footer>
-            </article>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container footer__inner">
-            <p class="footer__text">Bolzano, Italy · 2025</p>
-            <div class="footer__links">
-                <a href="https://github.com/samnart" class="footer__link" target="_blank" rel="noopener" aria-label="GitHub">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                </a>
-                <a href="https://linkedin.com/in/samnart" class="footer__link" target="_blank" rel="noopener" aria-label="LinkedIn">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-                </a>
-                <a href="https://twitter.com/samnart" class="footer__link" target="_blank" rel="noopener" aria-label="Twitter">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                </a>
-                <a href="mailto:hello@samnart.website" class="footer__link" aria-label="Email">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                </a>
+                    <!-- Footer Navigation -->
+                    <footer class="project-detail__footer">
+                        <nav class="project-detail__nav">
+                            <a
+                                href="/projects/gtfs-transformer/"
+                                class="project-detail__nav-link"
+                            >
+                                <span>Previous Project</span>
+                                <span>gtfs-transformer</span>
+                            </a>
+                            <a
+                                href="/projects/resilience-benchmark/"
+                                class="project-detail__nav-link project-detail__nav-link--next"
+                            >
+                                <span>Next Project</span>
+                                <span>resilience-benchmark</span>
+                            </a>
+                        </nav>
+                    </footer>
+                </article>
             </div>
-        </div>
-    </footer>
+        </main>
 
-    <script src="/js/main.js"></script>
-</body>
+        <div id="footer" aria-busy="true"></div>
+
+        <script src="/js/main.js"></script>
+        <script src="/js/include.js"></script>
+    </body>
 </html>
