@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img">
+<title>Sam</title>
+<style>
+.s{stroke:#1c1b18;fill:none;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+.d{fill:#9b5a36}
+@media (prefers-color-scheme:dark){.s{stroke:#ece6d9}.d{fill:#d6a878}}
+</style>
+<path class="s" d="M7 32 L21 32 L29 50 L39 14 L47 36 L57 32"/>
+<circle class="d" cx="29" cy="50" r="6"/>
+</svg>

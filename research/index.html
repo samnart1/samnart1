@@ -1,17 +1,17 @@
 <!doctype html>
 <html lang="en" data-theme="light">
     <head>
-        <meta charset="UTF-8" />
+        <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
         <link rel="icon" href="../assets/favicon.ico" sizes="any" />
         <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16.png" />
         <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" />
-        <title>Sam Nart ⋅ Writing</title>
+        <title>Sam Nart &middot; Research</title>
         <meta
             name="description"
-            content="Writing by Sam — engineering notes, and writing from ordinary life and the road."
+            content="research by sam — master's thesis on circuit breakers under failure injection, and distributed systems study."
         />
         <script>
             document.documentElement.classList.add("js");
@@ -59,10 +59,13 @@
                 </a>
                 <nav class="nav" aria-label="Primary">
                     <a href="../projects/">Projects</a>
-                    <a href="../research/">Research</a>
-                    <a href="../writing/" class="is-active" aria-current="page"
-                        >Writing</a
+                    <a
+                        href="../research/"
+                        class="is-active"
+                        aria-current="page"
+                        >Research</a
                     >
+                    <a href="../writing/">Writing</a>
                     <a href="../about/">About</a>
                 </nav>
                 <button
@@ -108,91 +111,77 @@
 
         <main>
             <section class="page-head container">
-                <p class="kicker">Writing</p>
-                <h1>Two notebooks.</h1>
+                <p class="kicker">Research</p>
+                <h1>How systems behave when things break.</h1>
                 <p class="lead">
-                    One for the machine &mdash; what I learn building things.
-                    One for the road &mdash; ordinary life and the places in
-                    between.
+                    My thesis work, plus the papers and systems I&rsquo;m
+                    studying by re-implementing them from scratch.
                 </p>
             </section>
 
             <section class="container">
-                <div class="group" data-reveal>
-                    <h2>Engineering &amp; work</h2>
+                <article class="feature-card" data-reveal>
+                    <p class="kicker">Master&rsquo;s Thesis</p>
+                    <h3>
+                        Evaluating Circuit Breakers Under Controlled Failure
+                        Injection
+                    </h3>
+                    <p class="feature-meta">
+                        Free University of Bolzano<br />
+                        Supervisors &middot; Andrea Janes, Alessandro Aneggi
+                    </p>
+                    <p class="prose">
+                        A 2&times;5 factorial study measuring how
+                        circuit-breaker configurations affect both resilience
+                        and energy consumption as failure intensity rises.
+                        Failures are injected across five intensity levels on
+                        two physical machines, and each of the ten experimental
+                        conditions is measured for performance and power draw
+                        &mdash; asking not just whether a circuit breaker helps,
+                        but what it costs.
+                    </p>
+                    <span class="pill">In progress</span>
+                </article>
+            </section>
 
-                    <a class="post" href="#">
-                        <span class="post-date">2026 &middot; 04</span>
-                        <div class="post-body">
-                            <h3>Building a durable executor from scratch</h3>
-                            <p class="post-dek">
-                                What &ldquo;exactly-once&rdquo; really means
-                                once you try to implement it yourself.
+            <section class="section container">
+                <p class="kicker" data-reveal>Also working on</p>
+                <div class="work-list">
+                    <article class="work-item" data-reveal>
+                        <span class="work-index">&mdash;</span>
+                        <div class="work-body">
+                            <h3>Re-implementing the classics</h3>
+                            <p class="work-desc">
+                                Reading canonical distributed-systems work by
+                                building it: durable execution, retries and
+                                backpressure, and the failure-handling patterns
+                                behind orchestration engines. CONDUCTOR is the
+                                current testbed.
                             </p>
+                            <div class="tags">
+                                <span class="tag">Distributed Systems</span>
+                                <span class="tag">Reliability</span>
+                                <span class="tag">From scratch</span>
+                            </div>
                         </div>
-                    </a>
+                    </article>
 
-                    <a class="post" href="#">
-                        <span class="post-date">2026 &middot; 03</span>
-                        <div class="post-body">
-                            <h3>
-                                What Playwright taught me about flaky scrapers
-                            </h3>
-                            <p class="post-dek">
-                                Forty-one supermarket sites, forty-one ways for
-                                a selector to betray you.
+                    <article class="work-item" data-reveal>
+                        <span class="work-index">&mdash;</span>
+                        <div class="work-body">
+                            <h3>Systematic mapping study</h3>
+                            <p class="work-desc">
+                                The literature groundwork feeding the thesis
+                                &mdash; surveying how resilience patterns are
+                                evaluated, and where energy cost is (and
+                                isn&rsquo;t) accounted for.
                             </p>
+                            <div class="tags">
+                                <span class="tag">Methodology</span>
+                                <span class="tag">Resilience Patterns</span>
+                            </div>
                         </div>
-                    </a>
-
-                    <a class="post" href="#">
-                        <span class="post-date">2026 &middot; 02</span>
-                        <div class="post-body">
-                            <h3>
-                                Circuit breakers, explained by breaking things
-                            </h3>
-                            <p class="post-dek">
-                                Notes from injecting failure on purpose, for
-                                science.
-                            </p>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="group" data-reveal>
-                    <h2>Life &amp; travel</h2>
-
-                    <a class="post" href="#">
-                        <span class="post-date">2026 &middot; 05</span>
-                        <div class="post-body">
-                            <h3>Notes from the Dolomites</h3>
-                            <p class="post-dek">
-                                A weekend above the cloud line, and what the
-                                quiet does to a tired head.
-                            </p>
-                        </div>
-                    </a>
-
-                    <a class="post" href="#">
-                        <span class="post-date">2026 &middot; 01</span>
-                        <div class="post-body">
-                            <h3>Learning German, one mistake at a time</h3>
-                            <p class="post-dek">
-                                On chasing B1, and being humbled daily by der,
-                                die, das.
-                            </p>
-                        </div>
-                    </a>
-
-                    <a class="post" href="#">
-                        <span class="post-date">2025 &middot; 12</span>
-                        <div class="post-body">
-                            <h3>Leaving Bolzano for Munich</h3>
-                            <p class="post-dek">
-                                Why I&rsquo;m pointing the next few years north.
-                            </p>
-                        </div>
-                    </a>
+                    </article>
                 </div>
             </section>
         </main>
