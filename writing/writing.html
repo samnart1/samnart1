@@ -3,15 +3,15 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
-        <link rel="icon" href="./assets/favicon.ico" sizes="any" />
-        <link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon-32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon-16.png" />
-        <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png" />
-        <title>Sam Nart &middot; Backend &amp; Distributed Systems Engineer</title>
+        <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="../assets/favicon.ico" sizes="any" />
+        <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16.png" />
+        <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" />
+        <title>Sam Nart ⋅ Writing</title>
         <meta
             name="description"
-            content="Sam. Backend and distributed systems engineer. Building reliable backend infrastructure and studying how systems fail."
+            content="Writing by Sam — engineering notes, and writing from ordinary life and the road."
         />
         <script>
             document.documentElement.classList.add("js");
@@ -34,12 +34,12 @@
             href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Hanken+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
             rel="stylesheet"
         />
-        <link rel="stylesheet" href="./css/style.css" />
+        <link rel="stylesheet" href="../css/style.css" />
     </head>
     <body>
         <header class="site-header">
             <div class="container header-inner">
-                <a class="brand" href="index.html" aria-label="Sam, home">
+                <a class="brand" href="/" aria-label="Sam, home">
                     <svg
                         class="brand-mark"
                         viewBox="0 0 120 64"
@@ -58,10 +58,12 @@
                     <!-- <span class="brand-word">Sam</span> -->
                 </a>
                 <nav class="nav" aria-label="Primary">
-                    <a href="./projects/">Projects</a>
-                    <a href="./research/">Research</a>
-                    <a href="./writing/">Writing</a>
-                    <a href="./about/">About</a>
+                    <a href="../projects/">Projects</a>
+                    <a href="../research/">Research</a>
+                    <a href="../writing/" class="is-active" aria-current="page"
+                        >Writing</a
+                    >
+                    <a href="../about/">About</a>
                 </nav>
                 <button
                     class="theme-toggle"
@@ -105,73 +107,99 @@
         </header>
 
         <main>
-            <section class="hero container">
-                <p class="kicker">
-                    Sam &middot; Backend &amp; Distributed Systems Engineer
-                </p>
-                <h1>I design systems for the moments things go wrong.</h1>
+            <section class="page-head container">
+                <p class="kicker">Writing</p>
+                <h1>Two notebooks.</h1>
                 <p class="lead">
-                    Master&rsquo;s student in Software Engineering at the Free
-                    University of Bolzano. Currently building a distributed
-                    workflow orchestration engine, and researching how systems
-                    behave when failure intensity rises.
+                    One for the machine &mdash; what I learn building things.
+                    One for the road &mdash; ordinary life and the places in
+                    between.
                 </p>
-                <div class="actions">
-                    <a class="btn" href="./projects/">View projects</a>
-                    <a class="link" href="./research/">Read the research</a>
-                    <a class="link ext" href="mailto:hello@example.com"
-                        >Get in touch</a
-                    >
-                </div>
             </section>
 
-            <section class="section container" aria-labelledby="selected">
-                <p class="kicker" id="selected" data-reveal>Selected work</p>
-                <div class="work-list">
-                    <a class="work-item" href="./projects/" data-reveal>
-                        <span class="work-index">01</span>
-                        <div class="work-body">
-                            <h3>CONDUCTOR</h3>
-                            <p class="work-desc">
-                                A Temporal and Prefect inspired workflow
-                                orchestration engine in Python. Durable
-                                execution, retries, and failure recovery, built
-                                in public.
+            <section class="container">
+                <div class="group" data-reveal>
+                    <h2>Engineering &amp; work</h2>
+
+                    <a class="post" href="#">
+                        <span class="post-date">2026 &middot; 04</span>
+                        <div class="post-body">
+                            <h3>Building a durable executor from scratch</h3>
+                            <p class="post-dek">
+                                What &ldquo;exactly-once&rdquo; really means
+                                once you try to implement it yourself.
                             </p>
                         </div>
                     </a>
-                    <a class="work-item" href="./projects/" data-reveal>
-                        <span class="work-index">02</span>
-                        <div class="work-body">
-                            <h3>Promotional Leaflet Pipeline</h3>
-                            <p class="work-desc">
-                                A production scraper pulling weekly promo
-                                leaflets from 41 European supermarket chains
-                                into Azure Blob Storage.
+
+                    <a class="post" href="#">
+                        <span class="post-date">2026 &middot; 03</span>
+                        <div class="post-body">
+                            <h3>
+                                What Playwright taught me about flaky scrapers
+                            </h3>
+                            <p class="post-dek">
+                                Forty-one supermarket sites, forty-one ways for
+                                a selector to betray you.
                             </p>
                         </div>
                     </a>
-                    <a class="work-item" href="./projects/" data-reveal>
-                        <span class="work-index">03</span>
-                        <div class="work-body">
-                            <h3>NOVA</h3>
-                            <p class="work-desc">
-                                A voice-capable personal assistant built on the
-                                Gemini API, with tool calling and persistent
-                                memory.
+
+                    <a class="post" href="#">
+                        <span class="post-date">2026 &middot; 02</span>
+                        <div class="post-body">
+                            <h3>
+                                Circuit breakers, explained by breaking things
+                            </h3>
+                            <p class="post-dek">
+                                Notes from injecting failure on purpose, for
+                                science.
                             </p>
                         </div>
                     </a>
                 </div>
-                <p style="margin-top: 2rem" data-reveal>
-                    <a class="link" href="./projects/">All projects</a>
-                </p>
+
+                <div class="group" data-reveal>
+                    <h2>Life &amp; travel</h2>
+
+                    <a class="post" href="#">
+                        <span class="post-date">2026 &middot; 05</span>
+                        <div class="post-body">
+                            <h3>Notes from the Dolomites</h3>
+                            <p class="post-dek">
+                                A weekend above the cloud line, and what the
+                                quiet does to a tired head.
+                            </p>
+                        </div>
+                    </a>
+
+                    <a class="post" href="#">
+                        <span class="post-date">2026 &middot; 01</span>
+                        <div class="post-body">
+                            <h3>Learning German, one mistake at a time</h3>
+                            <p class="post-dek">
+                                On chasing B1, and being humbled daily by der,
+                                die, das.
+                            </p>
+                        </div>
+                    </a>
+
+                    <a class="post" href="#">
+                        <span class="post-date">2025 &middot; 12</span>
+                        <div class="post-body">
+                            <h3>Leaving Bolzano for Munich</h3>
+                            <p class="post-dek">
+                                Why I&rsquo;m pointing the next few years north.
+                            </p>
+                        </div>
+                    </a>
+                </div>
             </section>
         </main>
 
         <footer class="site-footer">
             <div class="container footer-inner">
-                <!-- <p class="footer-name">Sam<span class="brand-dot">.</span></p> -->
+                <p class="footer-name">Sam<span class="brand-dot">.</span></p>
                 <nav class="footer-links" aria-label="Elsewhere">
                     <a href="mailto:hello@example.com">Email</a>
                     <a href="https://github.com/" target="_blank" rel="noopener"
@@ -185,11 +213,11 @@
                     >
                 </nav>
                 <p class="footer-meta">
-                    &copy; <span id="year">2026</span>
+                    &copy; <span id="year">2026</span> &middot; Built with care.
                 </p>
             </div>
         </footer>
 
-        <script src="./js/script.js"></script>
+        <script src="../js/script.js"></script>
     </body>
 </html>
