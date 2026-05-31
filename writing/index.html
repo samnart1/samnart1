@@ -1,198 +1,330 @@
-<!DOCTYPE html>
-<html lang="en" data-theme="light">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
-  <link rel="icon" href="../assets/favicon.ico" sizes="any" />
-  <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16.png" />
-  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" />
-  <title>Sam Nart &middot; Writing</title>
-  <meta name="description" content="writing by sam. notes on work, learning, and code, plus a journal of life and travel." />
-  <script>
-    document.documentElement.classList.add("js");
-    try {
-      var t = localStorage.getItem("theme");
-      var dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      document.documentElement.setAttribute("data-theme", t || (dark ? "dark" : "light"));
-    } catch (e) {
-      document.documentElement.setAttribute("data-theme", "light");
-    }
-  </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Hanken+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../css/style.css" />
-</head>
-<body>
-  <header class="site-header">
-    <div class="container header-inner">
-      <a class="brand" href="/" aria-label="Sam, home">
-        <svg class="brand-mark" viewBox="0 0 120 64" fill="none" aria-hidden="true">
-          <path d="M8 26 L38 26 L54 54 L70 8 L86 30 L112 26" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="54" cy="54" r="7" fill="var(--accent)"/>
-        </svg>
-        <!-- <span class="brand-word">Sam</span> -->
-      </a>
-      <nav class="nav" aria-label="Primary">
-        <a href="../projects/">Projects</a>
-        <a href="../research/">Research</a>
-        <a href="../writing/" class="is-active" aria-current="page">Writing</a>
-        <a href="../about/">About</a>
-      </nav>
-      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark and light theme">
-        <svg class="icon icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
-        <svg class="icon icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2 12h2.4M19.6 12H22M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/></svg>
-      </button>
-    </div>
-  </header>
-
-  <main>
-    <section class="page-head container">
-      <p class="kicker">Writing</p>
-      <h1>Notes and journal.</h1>
-      <p class="lead">Notes is the work, learning, and code side. Journal is everything that isn't.</p>
-
-      <div class="writing-tabs">
-        <div class="tabs" data-tabs role="tablist" aria-label="Writing categories">
-          <span class="tab-hl" aria-hidden="true"></span>
-          <button class="tab-btn is-active" data-tab="notes" role="tab" aria-selected="true" aria-controls="panel-notes" id="tab-notes" type="button">Notes</button>
-          <button class="tab-btn" data-tab="journal" role="tab" aria-selected="false" aria-controls="panel-journal" id="tab-journal" type="button">Journal</button>
-        </div>
-      </div>
-    </section>
-
-    <section class="container">
-
-      <!-- NOTES -->
-      <div class="tab-panel is-active" data-panel="notes" id="panel-notes" role="tabpanel" aria-labelledby="tab-notes">
-        <div class="notes-list">
-
-          <a class="note" href="#">
-            <span class="note-year">2026</span>
-            <div class="note-main">
-              <h3>What durable execution actually means</h3>
-              <p class="note-dek">I thought I got it. Building one proved otherwise.</p>
+<!doctype html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="../assets/favicon.ico" sizes="any" />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="../assets/favicon-32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="../assets/favicon-16.png"
+        />
+        <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" />
+        <title>Sam Nart &middot; Writing</title>
+        <meta
+            name="description"
+            content="Writing by Sam. Notes on work, learning, and code, plus a journal of life and travel."
+        />
+        <script>
+            document.documentElement.classList.add("js");
+            try {
+                var t = localStorage.getItem("theme");
+                var dark = window.matchMedia(
+                    "(prefers-color-scheme: dark)",
+                ).matches;
+                document.documentElement.setAttribute(
+                    "data-theme",
+                    t || (dark ? "dark" : "light"),
+                );
+            } catch (e) {
+                document.documentElement.setAttribute("data-theme", "dark");
+            }
+        </script>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Hanken+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="../css/style.css" />
+    </head>
+    <body>
+        <header class="site-header">
+            <div class="container header-inner">
+                <a class="brand" href="/" aria-label="Sam, home">
+                    <svg
+                        class="brand-mark"
+                        viewBox="0 0 120 64"
+                        fill="none"
+                        aria-hidden="true"
+                    >
+                        <path
+                            d="M8 26 L38 26 L54 54 L70 8 L86 30 L112 26"
+                            stroke="currentColor"
+                            stroke-width="8"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
+                        <circle cx="54" cy="54" r="7" fill="var(--accent)" />
+                    </svg>
+                    <!-- <span class="brand-word">Sam</span> -->
+                </a>
+                <nav class="nav" aria-label="Primary">
+                    <a href="/projects/">Projects</a>
+                    <a href="/research/">Research</a>
+                    <a href="/writing/" class="is-active" aria-current="page"
+                        >Writing</a
+                    >
+                    <a href="/about/">About</a>
+                </nav>
+                <button
+                    class="theme-toggle"
+                    id="themeToggle"
+                    type="button"
+                    aria-label="Toggle dark and light theme"
+                >
+                    <svg
+                        class="icon icon-moon"
+                        viewBox="0 0 24 24"
+                        width="18"
+                        height="18"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path
+                            d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"
+                        />
+                    </svg>
+                    <svg
+                        class="icon icon-sun"
+                        viewBox="0 0 24 24"
+                        width="18"
+                        height="18"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <circle cx="12" cy="12" r="4.2" />
+                        <path
+                            d="M12 2v2.4M12 19.6V22M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2 12h2.4M19.6 12H22M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"
+                        />
+                    </svg>
+                </button>
             </div>
-            <span class="note-cat">distributed systems</span>
-          </a>
+        </header>
 
-          <a class="note" href="#">
-            <span class="note-year">2026</span>
-            <div class="note-main">
-              <h3>Scraping 41 sites without losing it</h3>
-              <p class="note-dek">Flaky selectors, retries, and making peace with Playwright.</p>
+        <main>
+            <!-- <section class="page-head container">
+                <p class="sys-status-line">
+                    <span class="dot"></span> log stream &middot; 2 channels
+                </p>
+                <h1>Notes and journal.</h1>
+                <p class="lead">
+                    Notes is the work, learning, and code side. Journal is
+                    everything that isn't.
+                </p>
+
+                <div class="writing-tabs">
+                    <div
+                        class="tabs"
+                        data-tabs
+                        role="tablist"
+                        aria-label="Writing channels"
+                    >
+                        <span class="tab-hl" aria-hidden="true"></span>
+                        <button
+                            class="tab-btn is-active"
+                            data-tab="notes"
+                            role="tab"
+                            aria-selected="true"
+                            aria-controls="panel-notes"
+                            id="tab-notes"
+                            type="button"
+                        >
+                            Notes
+                        </button>
+                        <button
+                            class="tab-btn"
+                            data-tab="journal"
+                            role="tab"
+                            aria-selected="false"
+                            aria-controls="panel-journal"
+                            id="tab-journal"
+                            type="button"
+                        >
+                            Journal
+                        </button>
+                    </div>
+                </div>
+            </section> -->
+
+            <section class="container">
+                <!-- NOTES -->
+                <div
+                    class="tab-panel is-active"
+                    data-panel="notes"
+                    id="panel-notes"
+                    role="tabpanel"
+                    aria-labelledby="tab-notes"
+                >
+                    <div class="notes-list">
+                        <!-- <a class="note" href="#">
+                            <span class="note-year">2026 &middot; 04</span>
+                            <div class="note-main">
+                                <h3>What durable execution actually means</h3>
+                                <p class="note-dek">
+                                    I thought I got it. Building one proved
+                                    otherwise.
+                                </p>
+                            </div>
+                            <span class="note-cat">distributed systems</span>
+                        </a>
+                        <a class="note" href="#">
+                            <span class="note-year">2026 &middot; 03</span>
+                            <div class="note-main">
+                                <h3>Scraping 41 sites without losing it</h3>
+                                <p class="note-dek">
+                                    Flaky selectors, retries, and making peace
+                                    with Playwright.
+                                </p>
+                            </div>
+                            <span class="note-cat">python</span>
+                        </a>
+                        <a class="note" href="#">
+                            <span class="note-year">2026 &middot; 02</span>
+                            <div class="note-main">
+                                <h3>Reading papers by rebuilding them</h3>
+                                <p class="note-dek">
+                                    The fastest way I've found to actually
+                                    understand a system.
+                                </p>
+                            </div>
+                            <span class="note-cat">systems</span>
+                        </a>
+                        <a class="note" href="#">
+                            <span class="note-year">2025 &middot; 11</span>
+                            <div class="note-main">
+                                <h3>Circuit breakers, the honest take</h3>
+                                <p class="note-dek">
+                                    They save you. They also cost you. Both
+                                    worth knowing.
+                                </p>
+                            </div>
+                            <span class="note-cat">resilience</span>
+                        </a>
+                        <a class="note" href="#">
+                            <span class="note-year">2025 &middot; 09</span>
+                            <div class="note-main">
+                                <h3>CI that doesn't lie to you</h3>
+                                <p class="note-dek">
+                                    A green check should mean something. Here's
+                                    how I get there.
+                                </p>
+                            </div>
+                            <span class="note-cat">ci</span>
+                        </a> -->
+                    </div>
+                </div>
+
+                <!-- JOURNAL -->
+                <div
+                    class="tab-panel"
+                    data-panel="journal"
+                    id="panel-journal"
+                    role="tabpanel"
+                    aria-labelledby="tab-journal"
+                    hidden
+                >
+                    <div class="notes-list">
+                        <!-- <a class="note" href="#">
+                           <span class="note-year">2026 &middot; 05</span>
+                            <div class="note-main">
+                                <h3>A weekend in the Dolomites</h3>
+                                <p class="note-dek">
+                                    No signal. No laptop. Strongly recommend.
+                                </p>
+                            </div>
+                            <span class="note-cat">travel</span>
+                        </a> -->
+                        <!-- <a class="note" href="#">
+                            <span class="note-year">2026 &middot; 03</span>
+                            <div class="note-main">
+                                <h3>Learning German is going great</h3>
+                                <p class="note-dek">
+                                    That's a lie. der, die, das are still
+                                    winning.
+                                </p>
+                            </div>
+                            <span class="note-cat">life</span>
+                        </a> -->
+                        <!-- <a class="note" href="#">
+                            <span class="note-year">2026 &middot; 02</span>
+                            <div class="note-main">
+                                <h3>Bolzano, slow mornings</h3>
+                                <p class="note-dek">
+                                    The town before everyone wakes up.
+                                </p>
+                            </div>
+                            <span class="note-cat">life</span>
+                        </a> -->
+                        <!-- <a class="note" href="#">
+                            <span class="note-year">2025 &middot; 12</span>
+                            <div class="note-main">
+                                <h3>Why Munich</h3>
+                                <p class="note-dek">
+                                    Picking a city and aiming my life at it.
+                                </p>
+                            </div>
+                            <span class="note-cat">life</span>
+                        </a> -->
+                        <!-- <a class="note" href="#">
+                            <span class="note-year">2025 &middot; 10</span>
+                            <div class="note-main">
+                                <h3>Trains, and thinking on them</h3>
+                                <p class="note-dek">
+                                    Some of my best ideas happen at 200kmh.
+                                </p>
+                            </div>
+                            <span class="note-cat">travel</span>
+                        </a> -->
+                        <!-- <a class="note" href="#">
+                            <span class="note-year">2025 &middot; 08</span>
+                            <div class="note-main">
+                                <h3>Cooking for one</h3>
+                                <p class="note-dek">
+                                    Turns out it's a skill. I'm getting there.
+                                </p>
+                            </div>
+                            <span class="note-cat">life</span>
+                        </a> -->
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="sys-statusbar">
+            <div class="container row">
+                <div class="left">
+                    <a href="mailto:hello@example.com">email</a>
+                    <a href="https://github.com/" target="_blank" rel="noopener"
+                        >github</a
+                    >
+                    <a
+                        href="https://www.linkedin.com/"
+                        target="_blank"
+                        rel="noopener"
+                        >linkedin</a
+                    >
+                </div>
+                <div class="left">
+                    <span>&copy; <span id="year">2026</span> sam nart</span>
+                </div>
             </div>
-            <span class="note-cat">python</span>
-          </a>
+        </footer>
 
-          <a class="note" href="#">
-            <span class="note-year">2026</span>
-            <div class="note-main">
-              <h3>Reading papers by rebuilding them</h3>
-              <p class="note-dek">The fastest way I've found to actually understand a system.</p>
-            </div>
-            <span class="note-cat">systems</span>
-          </a>
-
-          <a class="note" href="#">
-            <span class="note-year">2025</span>
-            <div class="note-main">
-              <h3>Circuit breakers, the honest take</h3>
-              <p class="note-dek">They save you. They also cost you. Both worth knowing.</p>
-            </div>
-            <span class="note-cat">resilience</span>
-          </a>
-
-          <a class="note" href="#">
-            <span class="note-year">2025</span>
-            <div class="note-main">
-              <h3>CI that doesn't lie to you</h3>
-              <p class="note-dek">A green check should mean something. Here's how I get there.</p>
-            </div>
-            <span class="note-cat">ci</span>
-          </a>
-
-        </div>
-      </div>
-
-      <!-- JOURNAL -->
-      <div class="tab-panel" data-panel="journal" id="panel-journal" role="tabpanel" aria-labelledby="tab-journal" hidden>
-        <div class="notes-list">
-
-          <a class="note" href="#">
-            <span class="note-year">2026</span>
-            <div class="note-main">
-              <h3>A weekend in the Dolomites</h3>
-              <p class="note-dek">No signal. No laptop. Strongly recommend.</p>
-            </div>
-            <span class="note-cat">travel</span>
-          </a>
-
-          <a class="note" href="#">
-            <span class="note-year">2026</span>
-            <div class="note-main">
-              <h3>Learning German is going great</h3>
-              <p class="note-dek">That's a lie. der, die, das are still winning.</p>
-            </div>
-            <span class="note-cat">life</span>
-          </a>
-
-          <a class="note" href="#">
-            <span class="note-year">2026</span>
-            <div class="note-main">
-              <h3>Bolzano, slow mornings</h3>
-              <p class="note-dek">The town before everyone wakes up.</p>
-            </div>
-            <span class="note-cat">life</span>
-          </a>
-
-          <a class="note" href="#">
-            <span class="note-year">2025</span>
-            <div class="note-main">
-              <h3>Why Munich</h3>
-              <p class="note-dek">Picking a city and aiming my life at it.</p>
-            </div>
-            <span class="note-cat">life</span>
-          </a>
-
-          <a class="note" href="#">
-            <span class="note-year">2025</span>
-            <div class="note-main">
-              <h3>Trains, and thinking on them</h3>
-              <p class="note-dek">Some of my best ideas happen at 200kmh.</p>
-            </div>
-            <span class="note-cat">travel</span>
-          </a>
-
-          <a class="note" href="#">
-            <span class="note-year">2025</span>
-            <div class="note-main">
-              <h3>Cooking for one</h3>
-              <p class="note-dek">Turns out it's a skill. I'm getting there.</p>
-            </div>
-            <span class="note-cat">life</span>
-          </a>
-
-        </div>
-      </div>
-
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="container footer-inner">
-      <!-- <p class="footer-name">Sam<span class="brand-dot">.</span></p> -->
-      <nav class="footer-links" aria-label="Elsewhere">
-        <a href="mailto:hello@example.com">Email</a>
-        <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
-        <a href="https://www.linkedin.com/" target="_blank" rel="noopener">LinkedIn</a>
-      </nav>
-      <p class="footer-meta">&copy; <span id="year">2026</span> </p>
-    </div>
-  </footer>
-
-  <script src="../js/script.js"></script>
-</body>
+        <script src="../js/script.js"></script>
+    </body>
 </html>

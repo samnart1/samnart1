@@ -1,12 +1,22 @@
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
     <head>
-        <meta charset="UTF-8" />
+        <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
         <link rel="icon" href="../assets/favicon.ico" sizes="any" />
-        <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16.png" />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="../assets/favicon-32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="../assets/favicon-16.png"
+        />
         <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" />
         <title>Sam Nart &middot; About</title>
         <meta
@@ -25,7 +35,7 @@
                     t || (dark ? "dark" : "light"),
                 );
             } catch (e) {
-                document.documentElement.setAttribute("data-theme", "light");
+                document.documentElement.setAttribute("data-theme", "dark");
             }
         </script>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -109,17 +119,17 @@
         <main>
             <section class="container">
                 <p
-                    class="kicker"
+                    class="sys-status-line"
                     style="padding-top: clamp(3.2rem, 8vw, 5.5rem)"
                 >
-                    About
+                    <!-- <span class="dot"></span> manifest -->
                 </p>
                 <p class="about-lead">
-                    I&rsquo;m happiest when something is about to break.
+                    <!-- I&rsquo;m happiest when something is about to break. -->
                 </p>
 
                 <div class="about-body">
-                    <div>
+                    <!-- <div>
                         <p>
                             I&rsquo;m Sam, a Software Engineering Master&rsquo;s
                             student at the
@@ -133,10 +143,10 @@
                             Right now I&rsquo;m interning at
                             <strong>Fruit-Service</strong>, building a
                             production data pipeline, and spending my own time
-                            on <strong>CONDUCTOR</strong>, a distributed
-                            workflow orchestration engine I&rsquo;m writing from
-                            scratch to really understand how durable execution
-                            works. Before this, I worked on the
+                            on CONDUCTOR, a workflow orchestration engine
+                            I&rsquo;m writing from scratch to understand how
+                            durable execution really works. Before this, I
+                            worked on the
                             <strong>Open Data Hub</strong> platform at NOI
                             Techpark.
                         </p>
@@ -150,13 +160,13 @@
                         <p>
                             Outside the terminal, I&rsquo;m learning German
                             toward B1 and planning a move to
-                            <strong>Arcadia Planitia, Mars</strong> in the near future.
+                            <strong>Munich</strong> after I graduate.
                         </p>
-                    </div>
+                    </div> -->
 
-                    <dl class="facts" data-reveal>
+                    <!-- <dl class="facts" data-reveal>
                         <div>
-                            <dt>Based in</dt>
+                            <dt>Host</dt>
                             <dd>Bolzano, Italy</dd>
                         </div>
                         <div>
@@ -164,15 +174,15 @@
                             <dd>Backend &middot; Distributed Systems</dd>
                         </div>
                         <div>
-                            <dt>Currently</dt>
-                            <dd>CONDUCTOR &amp; Master&rsquo;s thesis</dd>
+                            <dt>Running</dt>
+                            <dd>Master&rsquo;s thesis &amp; side builds</dd>
                         </div>
                         <div>
-                            <dt>Next</dt>
-                            <dd>Arcadia Planitia, Mars</dd>
+                            <dt>Relocating</dt>
+                            <dd>Munich, Germany</dd>
                         </div>
                         <div>
-                            <dt>Elsewhere</dt>
+                            <dt>Links</dt>
                             <dd class="elsewhere">
                                 <a href="mailto:hello@example.com">Email</a>
                                 <a
@@ -189,29 +199,28 @@
                                 >
                             </dd>
                         </div>
-                    </dl>
+                    </dl> -->
                 </div>
             </section>
         </main>
 
-        <footer class="site-footer">
-            <div class="container footer-inner">
-                <!-- <p class="footer-name">Sam<span class="brand-dot">.</span></p> -->
-                <nav class="footer-links" aria-label="Elsewhere">
-                    <a href="mailto:hello@example.com">Email</a>
+        <footer class="sys-statusbar">
+            <div class="container row">
+                <div class="left">
+                    <a href="mailto:hello@example.com">email</a>
                     <a href="https://github.com/" target="_blank" rel="noopener"
-                        >GitHub</a
+                        >github</a
                     >
                     <a
                         href="https://www.linkedin.com/"
                         target="_blank"
                         rel="noopener"
-                        >LinkedIn</a
+                        >linkedin</a
                     >
-                </nav>
-                <p class="footer-meta">
-                    &copy; <span id="year">2026</span>
-                </p>
+                </div>
+                <div class="left">
+                    <span>&copy; <span id="year">2026</span> sam nart</span>
+                </div>
             </div>
         </footer>
 

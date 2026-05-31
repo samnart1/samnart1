@@ -55,6 +55,8 @@
 html {
   -webkit-text-size-adjust: 100%;
   overflow-x: clip;
+  min-height: 100%;
+  margin: 0;
 }
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }
@@ -83,7 +85,10 @@ img { max-width: 100%; height: auto; display: block; }
 
 body {
   position: relative;
-  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
   background-color: var(--bg);
   color: var(--text);
   font-family: var(--sans);
@@ -129,6 +134,7 @@ a { color: inherit; text-decoration: none; }
   max-width: 1080px;
   margin-inline: auto;
   padding-inline: clamp(1.25rem, 5vw, 3rem);
+  /* min-height: 30vh; */
 }
 .prose { max-width: 64ch; }
 
@@ -442,6 +448,9 @@ main { display: block; padding-bottom: clamp(3rem, 7vw, 5rem); }
 .facts .elsewhere a:hover { border-bottom-color: var(--accent); color: var(--accent); }
 
 /* ---------- Footer ---------- */
+footer {
+  margin-top: auto;
+}
 .site-footer {
   border-top: 1px solid var(--line);
   margin-top: clamp(4rem, 9vw, 6.5rem);
@@ -618,4 +627,337 @@ html.js [data-reveal].is-visible { opacity: 1; transform: none; }
   .note { grid-template-columns: 1fr; gap: 0.35rem; }
   .note-year { order: -1; }
   .note-cat { justify-self: start; margin-top: 0.45rem; }
+}
+
+/* =========================================================
+   Living system — home page only (scoped .sys-*)
+   ========================================================= */
+.sys-main { padding-bottom: 0; }
+
+.sys-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: center;
+  min-height: calc(100vh - 69px);
+  padding-top: clamp(1rem, 3vw, 2rem);
+  padding-bottom: clamp(2rem, 5vw, 3rem);
+}
+
+.sys-status-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 1.3rem;
+}
+.sys-status-line .dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .sys-status-line .dot { animation: sysBlink 2.4s ease-in-out infinite; }
+}
+@keyframes sysBlink { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+.sys-id h1 {
+  font-size: clamp(2.1rem, 5.4vw, 3.9rem);
+  line-height: 1.04;
+  letter-spacing: -0.025em;
+  max-width: 13ch;
+  margin-bottom: 1.2rem;
+}
+.sys-id .lead { margin-bottom: 1.6rem; max-width: 44ch; }
+.sys-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 1.5rem;
+  font-family: var(--mono);
+  font-size: 0.73rem;
+  letter-spacing: 0.05em;
+  color: var(--text-3);
+}
+.sys-meta b { color: var(--text-2); font-weight: 500; }
+.sys-meta .k { color: var(--text-3); margin-right: 0.1rem; }
+
+/* ---- the graph ---- */
+.sys-graph {
+  position: relative;
+  width: 100%;
+  height: clamp(380px, 60vh, 560px);
+}
+.sys-graph svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+.edge {
+  stroke: var(--line-2);
+  stroke-width: 1;
+  fill: none;
+  transition: stroke .35s ease, stroke-width .35s ease;
+}
+.edge.active { stroke: var(--accent); stroke-width: 1.4; }
+.pkt {
+  fill: var(--accent);
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--accent) 70%, transparent));
+}
+.hb { fill: none; stroke: var(--accent); stroke-width: 1; }
+
+.sys-node .ring {
+  fill: var(--bg);
+  stroke: var(--text-3);
+  stroke-width: 1.3;
+  transition: stroke .3s ease, fill .3s ease, filter .3s ease;
+}
+.sys-node .dot { fill: var(--text-3); transition: fill .3s ease; }
+.sys-node .label {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 14px;
+  fill: var(--text-2);
+  letter-spacing: -0.01em;
+  transition: fill .3s ease;
+}
+.sys-node--core .ring { stroke: var(--text-2); stroke-width: 1.5; }
+.sys-node--core .mark { stroke: var(--text); stroke-width: 6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.sys-node--core .mark-dot { fill: var(--accent); }
+.sys-node--mesh .ring { stroke: var(--line-2); fill: var(--bg); }
+
+a.sys-node { cursor: pointer; }
+a.sys-node:focus { outline: none; }
+.sys-node.lit .ring {
+  stroke: var(--accent);
+  fill: color-mix(in srgb, var(--accent) 16%, var(--bg));
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--accent) 55%, transparent));
+}
+.sys-node.lit .dot { fill: var(--accent); }
+.sys-node.hover .ring,
+a.sys-node:focus-visible .ring {
+  stroke: var(--accent);
+  filter: drop-shadow(0 0 9px color-mix(in srgb, var(--accent) 55%, transparent));
+}
+.sys-node.hover .label,
+a.sys-node:focus-visible .label { fill: var(--text); }
+.sys-node.hover .dot { fill: var(--accent); }
+.sys-node.near .ring { stroke: var(--text-2); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .sys-node--primary .ring,
+  .sys-node--core .ring { animation: sysBreathe 4.5s ease-in-out infinite; }
+}
+@keyframes sysBreathe { 0%,100% { opacity: 0.88; } 50% { opacity: 1; } }
+
+/* ---- signal log ---- */
+.sys-log {
+  border-top: 1px solid var(--line);
+  padding-top: clamp(1.4rem, 3vw, 2rem);
+  padding-bottom: clamp(2.5rem, 6vw, 4rem);
+}
+.sys-log .kicker { margin-bottom: 1.1rem; }
+.log-line {
+  display: grid;
+  grid-template-columns: 6.5rem 6rem 1fr;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-2);
+  align-items: baseline;
+}
+.log-line:last-child { border-bottom: 0; }
+.log-line .t { color: var(--text-3); }
+.log-line .c { color: var(--accent); letter-spacing: 0.04em; }
+
+/* ---- status bar footer ---- */
+.sys-statusbar {
+  border-top: 1px solid var(--line);
+  padding-block: 1.4rem;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--text-3);
+  letter-spacing: 0.04em;
+}
+.sys-statusbar .row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem 1.6rem;
+}
+.sys-statusbar .left { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1.3rem; }
+.sys-statusbar .op { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-2); }
+.sys-statusbar .op::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.sys-statusbar a { color: var(--text-3); }
+.sys-statusbar a:hover { color: var(--text); }
+
+@media (max-width: 860px) {
+  .sys-hero {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    gap: 1.5rem;
+    padding-top: 1.6rem;
+  }
+  .sys-graph { height: clamp(360px, 56vh, 480px); }
+}
+@media (max-width: 560px) {
+  .log-line { grid-template-columns: 4.6rem 1fr; gap: 0.3rem 0.8rem; }
+  .log-line .c { grid-column: 2; }
+  .log-line .m { grid-column: 1 / -1; color: var(--text-2); }
+}
+
+/* =========================================================
+   Projects — service registry (scoped .svc / .registry)
+   ========================================================= */
+.registry { margin-top: clamp(1.8rem, 4vw, 2.8rem); }
+
+.svc {
+  position: relative;
+  padding-block: clamp(1.5rem, 3vw, 2.1rem);
+  border-top: 1px solid var(--line);
+}
+.svc:last-child { border-bottom: 1px solid var(--line); }
+.svc::before {
+  content: "";
+  position: absolute;
+  inset: 0 clamp(-0.9rem, -2vw, -1.4rem);
+  border-radius: 12px;
+  background: var(--accent-soft);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity .3s ease;
+}
+.svc:hover::before { opacity: 1; }
+
+.svc-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem 1rem;
+  margin-bottom: 0.65rem;
+}
+.svc-id {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--text-3);
+  letter-spacing: 0.04em;
+}
+.svc-name {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(1.3rem, 2.4vw, 1.75rem);
+  letter-spacing: -0.015em;
+  flex: 1;
+  transition: color .25s ease;
+}
+.svc:hover .svc-name { color: var(--accent); }
+
+.svc-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  color: var(--text-3);
+  white-space: nowrap;
+}
+.svc-status .dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--text-3);
+  flex: none;
+}
+.svc-status--building .dot,
+.svc-status--running .dot { background: var(--accent); }
+.svc-status--building,
+.svc-status--running { color: var(--accent); }
+.svc-status--archived { opacity: 0.7; }
+@media (prefers-reduced-motion: no-preference) {
+  .svc-status--building .dot,
+  .svc-status--running .dot { animation: sysBlink 2.4s ease-in-out infinite; }
+}
+
+.svc-desc {
+  color: var(--text-2);
+  max-width: 64ch;
+  margin-bottom: 1rem;
+}
+.svc-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem 1.5rem;
+}
+.svc-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.1rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-3);
+  letter-spacing: 0.02em;
+}
+.svc-links { display: flex; flex-wrap: wrap; gap: 1.2rem; }
+.svc-links a {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--text-2);
+  letter-spacing: 0.02em;
+}
+.svc-links a:hover { color: var(--accent); }
+
+@media (max-width: 560px) {
+  .svc-head { flex-wrap: wrap; }
+  .svc-status { order: 3; flex-basis: 100%; }
+}
+
+/* =========================================================
+   Research — experiment matrix readout
+   ========================================================= */
+.readout { padding-top: clamp(2.4rem, 6vw, 4rem); }
+.readout .kicker { margin-bottom: 1rem; }
+.readout-title {
+  font-size: clamp(1.7rem, 3.6vw, 2.5rem);
+  max-width: 20ch;
+  margin-bottom: 1.1rem;
+}
+.readout-desc {
+  color: var(--text-2);
+  font-size: clamp(1.05rem, 1.3vw, 1.18rem);
+  line-height: 1.55;
+  max-width: 56ch;
+}
+.matrix-wrap { margin: clamp(1.8rem, 4vw, 2.4rem) 0 0; }
+.matrix {
+  display: grid;
+  grid-template-columns: 2.8rem repeat(5, minmax(26px, 44px));
+  gap: 7px;
+  align-items: center;
+  width: max-content;
+  max-width: 100%;
+}
+.matrix .mh {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--text-3);
+  text-align: center;
+  letter-spacing: 0.03em;
+}
+.matrix .mh.row { text-align: left; }
+.matrix .cell {
+  aspect-ratio: 1;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  background: var(--accent-soft);
+}
+.matrix-cap {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--text-3);
+  letter-spacing: 0.03em;
+  margin-top: 1rem;
 }
