@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What a circuit breaker actually costs you · Sam Nart</title>
+  <meta name="description" content="A live model of the circuit breaker pattern, built from the code and the measurements of an MSc thesis on the performance and energy consequences of fault tolerance in microservices.">
+  <meta property="og:title" content="What a circuit breaker actually costs you">
+  <meta property="og:description" content="A live, playable model of the circuit breaker pattern, next to the measurements from a thesis that ran it for ninety hours.">
+  <meta property="og:type" content="article">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="article.css">
+  <script>
+    (function(){var s;try{s=localStorage.theme}catch(e){}
+    document.documentElement.dataset.theme=s||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");})();
+  </script>
+</head>
+<body>
+  <div class="shell">
+    <aside class="rail">
+      <a href="/" class="name">sam nart</a>
+      <nav>
+        <a href="/projects/">projects</a>
+        <a href="/writing/" aria-current="page">writing</a>
+        <a href="/about/">about</a>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <h1>What a circuit breaker actually costs you</h1>
+      <p class="dek">MSc thesis · 20 conditions · 150 replication runs · about 90 hours of measurement</p>
+
+      <p class="lead">In the world of Software Engineering, most engineers agree that
+        circuit breakers need to be used in large systems like Microservices. 
+	Yet, almost nobody has taken the time to measure what happens when circuit breakers are used.
+       This thesis investigates and measures a ten service shop, at five failure intensities (0, 25, 50, 75, 100). 
+	The experiment was ran twice on two laptops and then 15 times on one laptop. The simple and short version is that,
+	circuits breakers do not remove cost, but they move it. And they move the cost to things that we probably never expected.</p>
+
+      <p>Below is an interactive working model of the system experimented on. 
+      The circuit breaker used here is the same one that was used for the experiment (except that its been rewritten into js; original experiment is written in python) and also <a href="test.html">checked against the original test suite</a> in the browser. Drag the sliders and play with it to see how circuit breakers work. Try and break payment service and see which of the meters move and which one refuses to.</p>
+
+      <section class="rig" aria-label="Live model of the system">
+        <div class="rig-head">
+          <span>live model</span>
+          <span class="spacer"></span>
+          <span class="clock" data-out="clock">0m 00s</span>
+        </div>
+
+        <svg class="rig-graph" role="img" aria-label="Service graph: loadgenerator, frontend, checkout and payment, with the other services dimmed"></svg>
+
+        <div class="rig-controls">
+          <span class="ctl">
+            <span class="k">breaker</span>
+            <span class="seg">
+              <button type="button" data-seg="breaker" data-value="off" aria-pressed="true">off</button>
+              <button type="button" data-seg="breaker" data-value="on" aria-pressed="false">on</button>
+            </span>
+          </span>
+
+          <span class="ctl">
+            <span class="k">payment fails</span>
+            <span class="seg">
+              <button type="button" data-seg="failure" data-value="0" aria-pressed="true">0%</button>
+              <button type="button" data-seg="failure" data-value="25" aria-pressed="false">25%</button>
+              <button type="button" data-seg="failure" data-value="50" aria-pressed="false">50%</button>
+              <button type="button" data-seg="failure" data-value="75" aria-pressed="false">75%</button>
+              <button type="button" data-seg="failure" data-value="100" aria-pressed="false">100%</button>
+            </span>
+          </span>
+
+          <span class="ctl">
+            <label class="k" for="c-failmax">fail_max</label>
+            <input id="c-failmax" type="range" data-range="failMax" min="2" max="10" step="1" value="5">
+            <span class="v" data-out="failMax">5</span>
+          </span>
+
+          <span class="ctl">
+            <label class="k" for="c-reset">reset s</label>
+            <input id="c-reset" type="range" data-range="resetTimeout" min="5" max="60" step="5" value="30">
+            <span class="v" data-out="resetTimeout">30</span>
+          </span>
+
+          <span class="ctl">
+            <label class="k" for="c-users">users</label>
+            <input id="c-users" type="range" data-range="users" min="10" max="200" step="10" value="100">
+            <span class="v" data-out="users">100</span>
+          </span>
+
+          <span class="ctl">
+            <span class="k">speed</span>
+            <span class="seg">
+              <button type="button" data-seg="speed" data-value="1" aria-pressed="false">1x</button>
+              <button type="button" data-seg="speed" data-value="5" aria-pressed="true">5x</button>
+              <button type="button" data-seg="speed" data-value="20" aria-pressed="false">20x</button>
+            </span>
+          </span>
+
+          <span class="spacer"></span>
+          <button type="button" class="btn rig-play" aria-pressed="false"><span class="label">play</span></button>
+          <button type="button" class="btn rig-step">step 1s</button>
+          <button type="button" class="btn rig-reset">reset</button>
+          <button type="button" class="btn rig-follow" hidden>follow article</button>
+        </div>
+
+        <div class="rig-pill" data-state="off">
+          <span class="badge" data-out="state">disabled</span>
+          <span><span class="k">consecutive fails</span> <span class="v" data-out="consecutive">n/a</span></span>
+          <span><span class="k">probe successes</span> <span class="v" data-out="probes">n/a</span></span>
+          <span><span class="k">opens</span> <span class="v" data-out="opens">0</span> <span class="mref" data-ref="opens"></span></span>
+          <span class="v" data-out="probeIn"></span>
+        </div>
+
+        <div class="meters">
+          <div class="meter">
+            <span class="k">throughput</span>
+            <span class="v"><span data-out="throughput">0.0</span><span class="u">req/s</span></span>
+            <span class="m" data-ref="throughput"></span>
+          </div>
+          <div class="meter">
+            <span class="k">availability</span>
+            <span class="v"><span data-out="availability">100.00</span><span class="u">%</span></span>
+            <span class="m" data-ref="availability"></span>
+          </div>
+          <div class="meter">
+            <span class="k">host power</span>
+            <span class="v"><span data-out="power">7.48</span><span class="u">W</span></span>
+            <span class="m" data-ref="power"></span>
+          </div>
+          <div class="meter">
+            <span class="k">energy per served</span>
+            <span class="v"><span data-out="jPerSuccess">0.000</span><span class="u">J</span></span>
+            <span class="m" data-ref="jPerSuccess"></span>
+          </div>
+        </div>
+
+        <div class="meters small">
+          <div class="meter">
+            <span class="k">checkout failing</span>
+            <span class="v"><span data-out="checkoutFail">0.00</span><span class="u">%</span></span>
+            <span class="m" data-ref="checkoutFail"></span>
+          </div>
+          <div class="meter">
+            <span class="k">checkout p95</span>
+            <span class="v"><span data-out="checkoutP95">0</span><span class="u">ms</span></span>
+            <span class="m" data-ref="checkoutP95"></span>
+          </div>
+          <div class="meter">
+            <span class="k">cart page mean</span>
+            <span class="v"><span data-out="cartMean">0</span><span class="u">ms</span></span>
+          </div>
+          <div class="meter">
+            <span class="k">items sitting in carts</span>
+            <span class="v"><span data-out="avgCart">0.0</span><span class="u">avg</span></span>
+          </div>
+        </div>
+
+        <div class="rig-sparks">
+          <div><span class="k">throughput</span><svg data-spark="throughput"></svg></div>
+          <div><span class="k">availability</span><svg data-spark="availability"></svg></div>
+          <div><span class="k">host power</span><svg data-spark="power"></svg></div>
+          <div><span class="k">energy per served request</span><svg data-spark="jPerSuccess"></svg></div>
+        </div>
+
+        <div class="rig-foot">
+          <pre class="rig-log">no transitions yet</pre>
+          <div class="rig-note">
+            served <span data-out="served">0</span>,
+            payment 500s <span data-out="errors">0</span>,
+            rejected by the breaker <span data-out="rejected">0</span> <span class="mref" data-ref="rejected"></span>,
+            aggregate p95 <span data-out="aggregateP95">0</span> ms.
+            <button type="button" class="btn rig-measured-toggle" aria-pressed="true" style="margin-left:.4rem"><span class="label">measured: shown</span></button>
+            <br>
+            Latency and watts here are illustrative. The dashed line and the
+            <em>rig</em> figure under each meter are real measurements from the
+            experiment, for whichever condition you have dialled in.
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== article ==================== -->
+
+      <!-- <section data-preset='{"breakerEnabled":false,"failureRate":0,"users":100}'> -->
+      <!--   <h2><span class="num">01</span>A shop that is really a graph</h2> -->
+      <!--   <p>The system under test is a ten service online shop, a Python -->
+      <!--   reimplementation of Google's Online Boutique, so the shape of it is -->
+      <!--   something the community already argued about rather than something I -->
+      <!--   invented to make a point. Everything is FastAPI and httpx, everything is -->
+      <!--   asynchronous, and every service runs from the same container image, so -->
+      <!--   nothing differs between them except the job.</p> -->
+      <!---->
+      <!--   <p>The bright path in the drawing is the one under test. The load -->
+      <!--   generator hits the frontend, the frontend calls checkout, checkout calls -->
+      <!--   payment. The dim boxes are real services with real breakers in front of -->
+      <!--   them that never trip here, because faults go into payment and nowhere -->
+      <!--   else. That is deliberate: on a browse page an open circuit degrades -->
+      <!--   politely into an empty product list, and nobody notices. Checkout is the -->
+      <!--   only path where an open circuit is something a user can feel.</p> -->
+      <!---->
+      <!--   <p>Right now payment is healthy. Roughly twenty one requests a second, -->
+      <!--   availability pinned at a hundred, and the machine drawing a bit under -->
+      <!--   eight watts.</p> -->
+      <!-- </section> -->
+      <!---->
+      <!-- <section data-preset='{"breakerEnabled":false,"failureRate":75,"users":100}'> -->
+      <!--   <h2><span class="num">02</span>Break payment, no breaker</h2> -->
+      <!--   <p>Three quarters of payment calls now return a 500 instantly. Red dots -->
+      <!--   keep travelling the whole way to payment and back, because nothing is -->
+      <!--   stopping them. Availability sags by about three points, which sounds -->
+      <!--   mild until you notice why: checkout is only about four percent of the -->
+      <!--   traffic. A total payment outage costs roughly four points of system wide -->
+      <!--   availability and one hundred percent of your revenue, and those two -->
+      <!--   numbers have nothing to do with each other.</p> -->
+      <!---->
+      <!--   <p>Watch the host power while you do this. It does not move. Failed work -->
+      <!--   is still work, and the machine has no idea it is wasting it.</p> -->
+      <!-- </section> -->
+      <!---->
+      <!-- <section data-preset='{"breakerEnabled":true,"failureRate":75,"failMax":5,"resetTimeout":30}'> -->
+      <!--   <h2><span class="num">03</span>The breaker, as this code implements it</h2> -->
+      <!--   <p>Turn the breaker on. The pill in the model is the live state machine. -->
+      <!--   Closed and calls flow. Five <em>consecutive</em> failures and it opens: -->
+      <!--   the guarded edge in the drawing gets a gap, amber dots pile up at the -->
+      <!--   frontend and never reach checkout or payment, and payment goes quiet. -->
+      <!--   After thirty seconds it goes half open and lets one call through as a -->
+      <!--   probe. Two successes in a row close it. Any failure reopens it -->
+      <!--   immediately.</p> -->
+      <!---->
+      <!--   <p class="aside">Consecutive is doing enormous work in that sentence. It -->
+      <!--   is not a failure rate over a window. One success anywhere in the run -->
+      <!--   wipes the counter back to zero. <b>Set the failure slider to 25% and -->
+      <!--   wait.</b> A quarter of all payments are failing and the breaker will -->
+      <!--   mostly sit there, closed, doing nothing at all.</p> -->
+      <!-- </section> -->
+      <!---->
+      <!-- <section data-preset='{"breakerEnabled":true,"failureRate":25,"failMax":5,"resetTimeout":30}'> -->
+      <!--   <h2><span class="num">04</span>Engagement is a threshold, not a slope</h2> -->
+      <!--   <p>This is arithmetic, and I worked it out before running anything. A -->
+      <!--   breaker that needs five consecutive failures trips with probability -->
+      <!--   <code>p^5</code> in any window of five calls. At a 25% failure rate that -->
+      <!--   is 0.098%, which over a thirty minute run of about 1,640 checkout -->
+      <!--   attempts predicts roughly 1.6 trips. The two machines produced one and -->
+      <!--   two.</p> -->
+      <!---->
+      <!--   <div class="figure"> -->
+      <!--     <div class="stat"><span class="v">0.098%</span><span class="k">trip probability<br>at 25% failure</span></div> -->
+      <!--     <div class="stat"><span class="v">3.1%</span><span class="k">at 50%</span></div> -->
+      <!--     <div class="stat"><span class="v">23.7%</span><span class="k">at 75%</span></div> -->
+      <!--     <div class="stat"><span class="v">57 / 57</span><span class="k">opens at 100%,<br>both machines</span></div> -->
+      <!--   </div> -->
+      <!---->
+      <!--   <p>At the other end it saturates. Each cycle is the thirty second reset -->
+      <!--   plus a second or two waiting for the next checkout, about thirty one -->
+      <!--   seconds, and eighteen hundred divided by thirty one is fifty seven and a -->
+      <!--   half. Both machines returned exactly fifty seven. The implementation -->
+      <!--   does precisely what its specification says, which is the reason anything -->
+      <!--   else on this page is worth reading.</p> -->
+      <!---->
+      <!--   <p>The finding hiding inside that is uncomfortable. A consecutive count -->
+      <!--   breaker cannot see a dependency that is a quarter broken. It ignores it -->
+      <!--   almost entirely, then engages hard. If you deployed this expecting -->
+      <!--   protection during low grade degradation, you get about one intervention -->
+      <!--   per half hour.</p> -->
+      <!-- </section> -->
+      <!---->
+      <!-- <section data-preset='{"breakerEnabled":true,"failureRate":50,"failMax":5,"resetTimeout":30}'> -->
+      <!--   <h2><span class="num">05</span>At partial failure it rejects coin flips</h2> -->
+      <!--   <p>Fifty percent injection. A checkout that actually reaches payment -->
+      <!--   still succeeds half the time. An open circuit rejects that coin flip -->
+      <!--   without asking.</p> -->
+      <!---->
+      <!--   <p>So the users saw a 79% checkout failure rate against 50% injected. -->
+      <!--   The breaker manufactured the difference, because its rejections are 503s -->
+      <!--   and I count them where users feel them. System wide availability drops -->
+      <!--   about one and a half points on both machines, and throughput drops up to -->
+      <!--   twelve percent at 75%. Of the 896 requests the Dell's breaker rejected -->
+      <!--   at this level, roughly half would have gone through.</p> -->
+      <!---->
+      <!--   <p>Is a fast no better than a fifty fifty yes? For a checkout with -->
+      <!--   revenue attached, probably not. For a recommendation panel with a cheap -->
+      <!--   fallback, obviously yes. The measurement does not answer that. What it -->
+      <!--   does is force the question at exactly the failure intensities real -->
+      <!--   incidents live in, which is degraded rather than dead.</p> -->
+      <!-- </section> -->
+      <!---->
+      <!-- <section data-preset='{"breakerEnabled":true,"failureRate":75,"failMax":5,"resetTimeout":30,"timeScale":20}'> -->
+      <!--   <h2><span class="num">06</span>The failure travelled through state</h2> -->
+      <!--   <p>This is the part nobody predicted, including me. With the breaker on -->
+      <!--   at 50% and 75%, everything got slower. Not checkout. Browsing pages that -->
+      <!--   never touch payment. And the machine was drawing no more power than -->
+      <!--   before. Less useful work, higher latency.</p> -->
+      <!---->
+      <!--   <p>Look at the two counters for carts. A cart is emptied in exactly one -->
+      <!--   place in the code, after a payment succeeds. The simulated shoppers keep -->
+      <!--   shopping regardless, and every cart view makes one product catalog call -->
+      <!--   per item held. So when the breaker suppresses successful checkouts, -->
+      <!--   carts grow for the entire run, and the price of every cart view grows -->
+      <!--   with them.</p> -->
+      <!---->
+      <!--   <div class="figure"> -->
+      <!--     <div class="stat"><span class="v">295 ms</span><span class="k">cart page, first five<br>minutes of one run</span></div> -->
+      <!--     <div class="stat"><span class="v">2,305 ms</span><span class="k">same run,<br>last five minutes</span></div> -->
+      <!--   </div> -->
+      <!---->
+      <!--   <p>Two readings. The magnitude is an artefact of my workload model, -->
+      <!--   because real customers abandon a broken shop and mine never do. The -->
+      <!--   mechanism is not. The failure cascaded, and it did not cascade through -->
+      <!--   blocked threads or an exhausted connection pool, the two carriers every -->
+      <!--   textbook describes. It cascaded through persistent state. No metric -->
+      <!--   watching only the protected call would have caught it.</p> -->
+      <!-- </section> -->
+      <!---->
+      <!-- <section data-preset='{"breakerEnabled":true,"failureRate":50,"failMax":5,"resetTimeout":30}'> -->
+      <!--   <h2><span class="num">07</span>The energy answer, including the one I got wrong</h2> -->
+      <!--   <p>Nobody had measured what a fault tolerance pattern costs in energy. I -->
+      <!--   checked that properly rather than assuming it: a systematic mapping -->
+      <!--   study, protocol first, 784 records screened from IEEE Xplore and the ACM -->
+      <!--   Digital Library, 44 papers included. Sixteen study the circuit breaker. -->
+      <!--   Two measure energy at all. Zero measure the energy cost of a pattern.</p> -->
+      <!---->
+      <!--   <p>My first answer was wrong, and it is worth showing the working. The -->
+      <!--   single run data said the breaker cut host power by up to eleven percent. -->
+      <!--   It was a clean story and I had already hedged it in the thesis, because -->
+      <!--   a single unreplicated run cannot support a delta that size. So I ran the -->
+      <!--   whole suite fifteen more times, 150 experiments, about seventy two -->
+      <!--   hours, no failed rounds.</p> -->
+      <!---->
+      <!--   <p>Power is flat. Every interval straddles zero. The eleven percent was -->
+      <!--   noise, and that claim is retired.</p> -->
+      <!---->
+      <!--   <div class="figure"> -->
+      <!--     <div class="stat"><span class="v">±1.3%</span><span class="k">host power, breaker on<br>versus off, all intensities</span></div> -->
+      <!--     <div class="stat"><span class="v">+7.6%</span><span class="k">energy per served request<br>at 50% injection</span></div> -->
+      <!--     <div class="stat"><span class="v">+10.6%</span><span class="k">at 75% injection</span></div> -->
+      <!--   </div> -->
+      <!---->
+      <!--   <p>What survived is better than what it replaced. Normalise by useful -->
+      <!--   work and the breaker is measurably more expensive at partial failure: it -->
+      <!--   draws the same watts while completing fewer transactions. The breaker -->
+      <!--   does not change what the machine costs to run. It changes how much that -->
+      <!--   cost buys, and in the middle of the sweep it buys less.</p> -->
+      <!---->
+      <!--   <p>That is why the power meter in the model above will not move for you -->
+      <!--   no matter how hard you push the sliders, while the joules per served -->
+      <!--   request meter climbs. It is not a broken gauge. It is the result.</p> -->
+      <!-- </section> -->
+      <!---->
+      <!-- <section> -->
+      <!--   <h2><span class="num">08</span>Two campaigns, and why they are never mixed</h2> -->
+      <!--   <p>There were two, and this page keeps them apart on purpose.</p> -->
+      <!---->
+      <!--   <p>The thesis campaign ran ten conditions on two machines, a Dell XPS 13 -->
+      <!--   and a Lenovo ThinkPad T480s, once each. About eleven hours. That buys -->
+      <!--   agreement across different hardware, which is the claim it makes, and it -->
+      <!--   cannot buy confidence intervals, because you cannot compute them from a -->
+      <!--   single run.</p> -->
+      <!---->
+      <!--   <p>The replication campaign ran the same ten conditions fifteen times on -->
+      <!--   the Dell alone. About seventy two hours. That buys means with intervals -->
+      <!--   and nothing at all about other hardware.</p> -->
+      <!---->
+      <!--   <p>So the engagement counts, the dose response and the cross machine -->
+      <!--   agreement come from the first. The power and energy figures come from -->
+      <!--   the second. Where they disagree the replication wins and I say so, which -->
+      <!--   is the only reason the corrected energy result is in this article rather -->
+      <!--   than quietly missing from it.</p> -->
+      <!---->
+      <!--   <p class="aside">Things also broke. On the Lenovo, Locust never wrote its -->
+      <!--   CSV export in any of the ten runs, and every statistic was recovered by -->
+      <!--   parsing the console tables it printed on shutdown. The first Lenovo -->
+      <!--   condition ran cold at 14.5 requests a second against roughly 21 -->
+      <!--   everywhere else, and was later re-executed cleanly at 21.10. Per process -->
+      <!--   energy attribution inside containers turned out to be noise, so the unit -->
+      <!--   of measurement became the host and every energy comparison stays inside -->
+      <!--   one machine. All of it is in the thesis, with what it cost.</p> -->
+      <!-- </section> -->
+      <!---->
+      <!-- <section> -->
+      <!--   <h2><span class="num">09</span>What to take</h2> -->
+      <!--   <p>Circuit breakers are not free isolation. They are a policy about -->
+      <!--   <em>consecutive</em> pain, and the measurement does not support turning -->
+      <!--   them on everywhere and forgetting them. It supports three decisions the -->
+      <!--   pattern cannot make for you.</p> -->
+      <!---->
+      <!--   <p>Match the threshold to the failure rates you actually care about, -->
+      <!--   because <code>p^5</code> cannot see a quarter broken dependency. Price -->
+      <!--   what a rejection is worth against its probability of success, because at -->
+      <!--   partial failure you are trading real successes for fast failures. And -->
+      <!--   audit what failure does to your persistent state, because that is the -->
+      <!--   path along which I watched a contained failure reach every page in the -->
+      <!--   system.</p> -->
+      <!---->
+      <!--   <p>The biggest limitation is deliberate and stated up front: every -->
+      <!--   injected failure returned instantly. There are no hanging calls here, so -->
+      <!--   the breaker's most celebrated benefit, escaping timeout waits, is -->
+      <!--   structurally absent, which makes everything measured a lower bound. The -->
+      <!--   latency injection knob already exists in every service. That is the next -->
+      <!--   experiment, and it is one environment file away.</p> -->
+      <!---->
+      <!--   <p class="meta" style="margin-top:2.5rem"> -->
+      <!--     code <a href="https://github.com/samnart1/tolerant">github.com/samnart1/tolerant</a><span class="sep">·</span> -->
+      <!--     parity tests <a href="test.html">test.html</a><span class="sep">·</span> -->
+      <!--     supervisor Prof. Andrea Janes, Free University of Bozen-Bolzano -->
+      <!--   </p> -->
+      <!-- </section> -->
+    </main>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <a href="mailto:17samnart@gmail.com">email</a><span class="sep">·</span>
+      <a href="https://github.com/samnart1">github</a><span class="sep">·</span>
+      <span class="spacer"></span>
+      <button class="theme" type="button">
+        <span class="dot"></span><span class="label">dark</span>
+      </button>
+      <span class="copy">© 2026</span>
+    </div>
+  </footer>
+
+  <script src="/theme.js"></script>
+  <script type="module">
+    import { mount } from "./js/ui.js";
+    mount(document.querySelector(".rig"));
+  </script>
+</body>
+</html>

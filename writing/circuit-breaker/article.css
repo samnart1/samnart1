@@ -1,0 +1,308 @@
+/* article.css
+ *
+ * Page-scoped. Loaded after /style.css and adds nothing to it: every colour
+ * here is one of the site's tokens, or one of three signal colours defined
+ * below that have to be actual hues because green, red and amber are the
+ * information.
+ */
+
+:root {
+  --ok: #3f7d58;
+  --err: #b8402f;
+  --rej: #b07d21;
+}
+:root[data-theme="dark"] {
+  --ok: #6fbf8e;
+  --err: #e8705c;
+  --rej: #d7a94e;
+}
+
+/* ============ prose additions ============ */
+
+h2 {
+  font-size: 1.18rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  margin: 3rem 0 0.85rem;
+}
+h2 .num {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--faint);
+  letter-spacing: 0.08em;
+  display: block;
+  margin-bottom: 0.35rem;
+  font-weight: 400;
+}
+.dek {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--faint);
+  margin: 0 0 2rem;
+}
+.content code {
+  font-family: var(--mono);
+  font-size: 0.84em;
+  color: var(--muted);
+}
+.aside {
+  border-left: 2px solid var(--rule);
+  padding: 0.1rem 0 0.1rem 1rem;
+  margin: 1.6rem 0;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+.aside b { color: var(--ink); font-weight: 600; }
+
+/* A single number pulled out of the prose. */
+.figure {
+  display: flex;
+  gap: 1.6rem;
+  flex-wrap: wrap;
+  margin: 1.6rem 0;
+}
+.figure .stat { min-width: 7rem; }
+.figure .stat .v {
+  font-size: 1.55rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+.figure .stat .k {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--faint);
+  margin-top: 0.2rem;
+  line-height: 1.45;
+}
+
+/* ============ the instrument ============ */
+
+.rig {
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--elev);
+  margin: 2rem 0 2.5rem;
+  overflow: hidden;
+}
+@media (min-width: 781px) and (min-height: 800px) {
+  /* Sticks to the top so the article scrolls past a live model. Falls back to
+     a normal block on short screens, where a sticky panel would eat the page. */
+  .rig { position: relative; }
+}
+
+.rig-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--faint);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.rig-head .spacer { flex: 1; }
+.rig-head .clock { color: var(--muted); text-transform: none; letter-spacing: 0; }
+
+/* ---- graph ---- */
+
+.rig-graph { display: block; width: 100%; height: auto; background: var(--bg); }
+
+.rig-graph .edge { fill: none; stroke: var(--rule); stroke-width: 1.5; }
+.rig-graph .edge.main { stroke: var(--faint); }
+.rig-graph .edge.dim { stroke: var(--rule); stroke-width: 1; }
+
+/* The guarded edge carries the breaker state. */
+.rig-graph[data-state="half_open"] .edge.guarded { stroke-dasharray: 4 4; }
+.rig-graph[data-state="open"] .edge.guarded { stroke: var(--rej); stroke-dasharray: 2 6; opacity: 0.55; }
+.rig-graph .break-mark line { stroke: var(--rej); stroke-width: 2; opacity: 0; }
+.rig-graph[data-state="open"] .break-mark line { opacity: 1; }
+
+.rig-graph .node rect { fill: var(--elev); stroke: var(--faint); stroke-width: 1; }
+.rig-graph .node text {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  fill: var(--ink);
+}
+.rig-graph .node.dim rect { fill: transparent; stroke: var(--rule); }
+.rig-graph .node.dim text { fill: var(--faint); }
+.rig-graph .node.quiet rect { stroke: var(--rule); }
+.rig-graph .node.quiet text { fill: var(--faint); }
+.rig-graph .node.faulted rect { stroke: var(--err); }
+.rig-graph .node.loaded rect { stroke: var(--rej); }
+.rig-graph .fault-label { font-family: var(--mono); font-size: 8.5px; fill: var(--err); }
+
+.rig-graph .packet { stroke: none; }
+.rig-graph .packet.served { fill: var(--ok); }
+.rig-graph .packet.error { fill: var(--err); }
+.rig-graph .packet.rejected { fill: var(--rej); }
+
+/* ---- controls ---- */
+
+.rig-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.1rem;
+  align-items: center;
+  padding: 0.7rem 0.75rem;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+.ctl { display: flex; align-items: center; gap: 0.4rem; }
+.ctl > .k { color: var(--faint); }
+
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; }
+.seg button {
+  font: inherit;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  border-right: 1px solid var(--rule);
+  padding: 0.16rem 0.45rem;
+  cursor: pointer;
+  transition: color 0.12s ease, background 0.12s ease;
+}
+.seg button:last-child { border-right: 0; }
+.seg button:hover { color: var(--ink); }
+.seg button[aria-pressed="true"] { color: var(--bg); background: var(--ink); }
+
+.ctl input[type="range"] { width: 5.2rem; accent-color: var(--accent); }
+.ctl .v { color: var(--ink); min-width: 2.1rem; display: inline-block; }
+
+.rig-controls .spacer { flex: 1; }
+.btn {
+  font: inherit;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 0.16rem 0.6rem;
+  cursor: pointer;
+  transition: color 0.12s ease, border-color 0.12s ease;
+}
+.btn:hover { color: var(--ink); border-color: var(--faint); }
+.btn[aria-pressed="true"] { color: var(--ink); border-color: var(--faint); }
+.rig-follow { border-color: var(--accent); color: var(--accent); }
+
+/* ---- readouts ---- */
+
+.rig-pill {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 1.1rem;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+.rig-pill .badge {
+  border: 1px solid var(--faint);
+  border-radius: 999px;
+  padding: 0.1rem 0.55rem;
+  color: var(--ink);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+}
+.rig-pill[data-state="open"] .badge { border-color: var(--rej); color: var(--rej); }
+.rig-pill[data-state="half_open"] .badge { border-color: var(--accent); color: var(--accent); }
+.rig-pill[data-state="closed"] .badge { border-color: var(--ok); color: var(--ok); }
+.rig-pill .k { color: var(--faint); }
+.rig-pill .v { color: var(--ink); }
+
+.meters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-bottom: 1px solid var(--rule);
+}
+.meter { padding: 0.6rem 0.75rem; border-right: 1px solid var(--rule); min-width: 0; }
+.meter:last-child { border-right: 0; }
+.meter .k {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.63rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--faint);
+  margin-bottom: 0.15rem;
+}
+.meter .v { font-size: 1.16rem; letter-spacing: -0.01em; line-height: 1.2; }
+.meter .v .u { font-family: var(--mono); font-size: 0.62rem; color: var(--faint); margin-left: 0.15rem; }
+.meter .m {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.63rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
+  min-height: 1em;
+}
+.meter .m::before { content: "rig "; color: var(--faint); }
+.no-measured .meter .m { display: none; }
+
+/* Inline measured reference, for readouts that are not full meters. */
+.mref { color: var(--muted); }
+.mref:not(:empty)::before { content: "(rig "; color: var(--faint); }
+.mref:not(:empty)::after { content: ")"; color: var(--faint); }
+.no-measured .mref { display: none; }
+
+.meters.small .meter .v { font-size: 0.94rem; }
+
+.rig-sparks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-bottom: 1px solid var(--rule);
+}
+.rig-sparks > div { padding: 0.45rem 0.75rem 0.6rem; border-right: 1px solid var(--rule); min-width: 0; }
+.rig-sparks > div:nth-child(2n) { border-right: 0; }
+.rig-sparks > div:nth-child(-n + 2) { border-bottom: 1px solid var(--rule); }
+.rig-sparks .k {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.63rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--faint);
+  margin-bottom: 0.25rem;
+}
+.rig-sparks svg { display: block; width: 100%; height: 46px; }
+.spark-line { stroke: var(--accent); stroke-width: 1.5; }
+.spark-ref { stroke: var(--faint); stroke-width: 1; stroke-dasharray: 3 3; }
+.no-measured .spark-ref { display: none !important; }
+
+.rig-foot {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 0.6rem 0.75rem;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--faint);
+  line-height: 1.6;
+}
+.rig-log { white-space: pre; color: var(--muted); flex: 0 0 auto; }
+.rig-note { flex: 1; min-width: 0; }
+
+@media (max-width: 560px) {
+  .meters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .meter:nth-child(2n) { border-right: 0; }
+  .meter:nth-child(-n + 2) { border-bottom: 1px solid var(--rule); }
+  .rig-foot { flex-direction: column; gap: 0.5rem; }
+  .rig-sparks { grid-template-columns: 1fr; }
+  .rig-sparks > div { border-right: 0; border-bottom: 1px solid var(--rule); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rig { position: static; }
+}
+
+/* Parked rejections: held at the frontend long enough to be seen. */
+.rig-graph .packet.parked { fill: var(--rej); }
