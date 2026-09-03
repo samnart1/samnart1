@@ -1,0 +1,26 @@
+- { label: "Go",             slug: "go" }
+- { label: "C++",            slug: "cplusplus" }
+- { label: "Python",         slug: "python" }
+- { label: "TypeScript",     slug: "typescript" }
+- { label: "Java",           slug: "openjdk" }
+- { label: "Spring Boot",    slug: "springboot" }
+- { label: "FastAPI",        slug: "fastapi" }
+- { label: "Node.js",        slug: "nodedotjs" }
+- { label: "React",          slug: "react" }
+- { label: "gRPC",           slug: "grpc" }
+- { label: "PostgreSQL",     slug: "postgresql" }
+- { label: "Redis",          slug: "redis" }
+- { label: "Apache Kafka",   slug: "apachekafka" }
+- { label: "MongoDB",        slug: "mongodb" }
+- { label: "Docker",         slug: "docker" }
+- { label: "Kubernetes",     slug: "kubernetes" }
+- { label: "Terraform",      slug: "terraform" }
+- { label: "Azure",          slug: "microsoftazure" }
+- { label: "GitHub Actions", slug: "githubactions" }
+- { label: "Prometheus",     slug: "prometheus" }
+- { label: "Grafana",        slug: "grafana" }
+- { label: "Linux",          slug: "linux" }
+- { label: "CMake",          slug: "cmake" }
+- { label: "Keycloak",       slug: "keycloak" }
+- { label: "Playwright",     slug: "playwright" }
+- { label: "Tailwind CSS",   slug: "tailwindcss" }

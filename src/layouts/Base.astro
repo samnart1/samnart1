@@ -1,0 +1,41 @@
+---
+import { ClientRouter } from "astro:transitions";
+import SEO from "../components/SEO.astro";
+import "../styles/global.css";
+
+interface Props { title: string; description?: string; name?: string; }
+const {
+  title,
+  description = "Software engineer — backend and distributed systems.",
+  name = "Samuel Tettey-Nartey",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#16161e" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <SEO title={title} description={description} name={name} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Manrope:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <ClientRouter />
+  </head>
+  <body>
+    <a href="#main" class="skip">Skip to content</a>
+    <main id="main"><slot /></main>
+    <style>
+      .skip { position:absolute; left:-9999px; top:0; z-index:100; padding:.5rem 1rem; background:var(--green); color:var(--bg); }
+      .skip:focus { left:0; }
+    </style>
+  </body>
+</html>
