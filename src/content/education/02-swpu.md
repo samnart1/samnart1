@@ -1,7 +1,7 @@
 ---
 school: "Southwest Petroleum University"
 program: "B.Sc. Computer Science and Technology"
-period: "China"
+period: "Chengdu, China"
 order: 2
 ---
 

@@ -1,3 +1,4 @@
+@import "./fonts.css";
 @import "./tokens.css";
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -7,7 +8,7 @@ img, svg { display: block; max-width: 100%; height: auto; }
 input, button { font: inherit; color: inherit; }
 ul[role="list"] { list-style: none; padding: 0; margin: 0; }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; scroll-padding-top: 3.75rem; }
 body {
   font-family: var(--font-body);
   font-size: var(--step-0);

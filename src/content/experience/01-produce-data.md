@@ -1,8 +1,8 @@
 ---
 role: "Software Engineer"
-org: "Produce Data Platform"          # TODO: confirm public company name
-location: "Remote / EU"
-period: "2025 — Present"
+org: "Fruit-Service GmbH"
+location: "Bolzano, Italy"
+period: "Apr 2025 — Aug 2025"
 order: 1
 draft: false
 ---

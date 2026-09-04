@@ -1,7 +1,7 @@
 ---
 school: "Free University of Bozen-Bolzano"
 program: "MSc Software Engineering"
-period: "Graduating autumn 2026"
+period: "Bolzano, Italy"
 order: 1
 ---
 

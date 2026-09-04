@@ -2,24 +2,20 @@
    SELF-HOSTED FONTS — variable woff2, served from /fonts.
    No third-party requests. font-display: swap for fast paint.
    ============================================================ */
-
 @font-face {
-  font-family: "Bricolage Grotesque";
-  src: url("/fonts/bricolage-grotesque-var.woff2") format("woff2");
+  font-family: "Pixelify Sans";
+  src: url("/fonts/pixelify-sans-var.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/manrope-var.woff2") format("woff2");
   font-weight: 200 800;
-  font-stretch: 75% 100%;
   font-display: swap;
   font-style: normal;
 }
-
-@font-face {
-  font-family: "Hanken Grotesk";
-  src: url("/fonts/hanken-grotesk-var.woff2") format("woff2");
-  font-weight: 100 900;
-  font-display: swap;
-  font-style: normal;
-}
-
 @font-face {
   font-family: "Geist Mono";
   src: url("/fonts/geist-mono-var.woff2") format("woff2");

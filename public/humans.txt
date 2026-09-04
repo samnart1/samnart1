@@ -1,0 +1,10 @@
+/* TEAM */
+  Developer: Samuel Tettey-Nartey
+  Site: https://samnart.website
+  GitHub: samnart1
+  Location: Bolzano, Italy
+
+/* SITE */
+  Built with: Astro
+  Fonts: Pixelify Sans, Hanken Grotesk, Geist Mono
+  Standards: HTML5, CSS3
