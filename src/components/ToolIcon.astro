@@ -1,0 +1,55 @@
+---
+/* Resolves a simple-icons slug at BUILD time and inlines the path.
+   No runtime CDN request, and a version pinned in package-lock.
+   Icons do get retired upstream (Azure, gRPC and Playwright already were),
+   so an unknown slug degrades to a monogram instead of a blank box. */
+import * as simpleIcons from "simple-icons";
+
+interface Props {
+  slug: string;
+  label: string;
+}
+const { slug, label } = Astro.props;
+
+const bySlug = new Map(
+  Object.values(simpleIcons).map((icon: any) => [icon.slug, icon])
+);
+const icon: any = bySlug.get(slug);
+const monogram = label.replace(/[^A-Za-z0-9+]/g, "").slice(0, 2).toUpperCase();
+---
+
+{
+  icon ? (
+    <svg
+      class="ticon"
+      viewBox="0 0 24 24"
+      width="24"
+      height="24"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d={icon.path} fill="currentColor" />
+    </svg>
+  ) : (
+    <span class="ticon ticon--mono" aria-hidden="true">{monogram}</span>
+  )
+}
+
+<style>
+  .ticon {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    color: var(--muted);
+    transition: color var(--dur-fast);
+  }
+  .ticon--mono {
+    display: grid;
+    place-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+  }
+</style>

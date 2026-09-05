@@ -1,9 +1,9 @@
 ---
 school: "Southwest Petroleum University"
-program: "B.Sc. Computer Science and Technology"
+program: "BSc Computer Science and Technology"
 period: "Chengdu, China"
 order: 2
+draft: false
 ---
 
-Bachelor's in Computer Science and Technology: algorithms, data structures,
-operating systems, databases, and networks.
+Algorithms, data structures, operating systems, databases, and networks.

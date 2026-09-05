@@ -6,5 +6,6 @@
 
 /* SITE */
   Built with: Astro
-  Fonts: Pixelify Sans, Hanken Grotesk, Geist Mono
+  Fonts: Pixelify Sans, Manrope, Geist Mono
+  Icons: simple-icons, inlined at build time
   Standards: HTML5, CSS3

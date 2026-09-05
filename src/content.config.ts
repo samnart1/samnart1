@@ -1,17 +1,16 @@
 import { defineCollection, z } from "astro:content";
 import { glob, file } from "astro/loaders";
 
-/* ------------------------------------------------------------
-   PROFILE — single YAML: hero + socials + meta.
-   file() loader: one object, queried by a fixed id.
-   ------------------------------------------------------------ */
+/* PROFILE - single YAML: hero, socials, availability. */
 const profile = defineCollection({
   loader: file("src/content/profile.yaml"),
   schema: z.object({
     name: z.string(),
-    role: z.string(),                    // mono hero sub-line
-    affiliations: z.array(z.string()),   // hero card lines
+    role: z.string(),
+    tagline: z.string(),
     location: z.string(),
+    availability: z.string().optional(),
+    cv: z.string().optional(),
     socials: z.array(
       z.object({
         label: z.string(),
@@ -22,80 +21,62 @@ const profile = defineCollection({
   }),
 });
 
-/* ------------------------------------------------------------
-   ABOUT — one Markdown file, body is the bio prose.
-   ------------------------------------------------------------ */
+/* ABOUT - one Markdown file, body is the bio prose. */
 const about = defineCollection({
   loader: glob({ pattern: "index.md", base: "src/content/about" }),
-  schema: ({ image }) =>
-    z.object({
-      heading: z.string().default("About"),
-      photo: image().optional(),         // optimized at build if present
-      photoAlt: z.string().default(""),
-    }),
+  schema: z.object({
+    heading: z.string().default("about"),
+  }),
 });
 
-/* ------------------------------------------------------------
-   EXPERIENCE — one .md per role. order controls display.
-   ------------------------------------------------------------ */
+/* EXPERIENCE - one .md per role. order = reverse chronological. */
 const experience = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "src/content/experience" }),
-  schema: ({ image }) =>
-    z.object({
-      role: z.string(),
-      org: z.string(),
-      location: z.string().optional(),
-      period: z.string(),                  // mono, e.g. "Apr 2025 — Aug 2025"
-      order: z.number(),                   // lower = earlier in list
-      image: image().optional(),           // optional top banner (grayscale)
-      draft: z.boolean().default(false),   // hide until confirmed
-      // body = description
-    }),
+  schema: z.object({
+    role: z.string(),
+    org: z.string(),
+    location: z.string().optional(),
+    period: z.string(),
+    order: z.number(),
+    draft: z.boolean().default(false),
+  }),
 });
 
-/* ------------------------------------------------------------
-   EDUCATION — one .md per school.
-   ------------------------------------------------------------ */
+/* EDUCATION - location and period are separate fields. */
 const education = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "src/content/education" }),
   schema: z.object({
     school: z.string(),
-    program: z.string(),                 // mono sub-line
+    program: z.string(),
     period: z.string().optional(),
     order: z.number(),
     draft: z.boolean().default(false),
   }),
 });
 
-/* ------------------------------------------------------------
-   PROJECTS — one .md per project. Only shipped ones (draft:false).
-   ------------------------------------------------------------ */
+/* PROJECTS - one .md per project. `page` is an internal write-up route. */
 const projects = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "src/content/projects" }),
-  schema: ({ image }) =>
-    z.object({
-      name: z.string(),
-      stack: z.array(z.string()),        // mono tech tags
-      demo: z.string().url().optional(),    // live demo (preferred primary)
-      repo: z.string().url().optional(),
-      writeup: z.string().url().optional(), // build notes / presentation
-      href: z.string().url().optional(), // "Open project"
-      cover: image().optional(),
-      order: z.number(),
-      featured: z.boolean().default(true), // featured => card; else text line
-      draft: z.boolean().default(false),   // shipped gate
-      // body = description
-    }),
+  schema: z.object({
+    name: z.string(),
+    stack: z.array(z.string()),
+    page: z.string().optional(),
+    demo: z.string().url().optional(),
+    repo: z.string().url().optional(),
+    writeup: z.string().url().optional(),
+    category: z.enum(["systems", "backend", "web", "experiments", "collections"]).default("backend"),
+    featured: z.boolean().default(false),
+    order: z.number(),
+    draft: z.boolean().default(false),
+  }),
 });
 
-/* ------------------------------------------------------------
-   TECH — flat list in one YAML. Icon slug maps to an SVG later.
-   ------------------------------------------------------------ */
+/* TECH - flat list, slug resolved to an inlined icon at build time. */
 const tech = defineCollection({
   loader: file("src/content/tech.yaml"),
   schema: z.object({
     label: z.string(),
-    slug: z.string(),                    // icon key
+    slug: z.string(),
   }),
 });
 

@@ -1,16 +1,24 @@
 ---
+import { getEntry } from "astro:content";
+
 interface Props {
   title: string;
   description: string;
   name: string;
-  image?: string;   // OG image path, relative to site root
+  image?: string;
 }
 const { title, description, name, image = "/og.png" } = Astro.props;
 
-// Astro.site comes from astro.config.mjs `site`. Fallbacks keep dev happy.
 const site = Astro.site ?? new URL("https://samnart.website");
 const canonical = new URL(Astro.url.pathname, site).href;
 const ogImage = new URL(image, site).href;
+
+/* sameAs is built from the same socials the page renders, so a new profile
+   link never has to be added in two places. */
+const profile = (await getEntry("profile", "profile"))!.data;
+const sameAs = profile.socials
+  .filter((s) => s.href.startsWith("http"))
+  .map((s) => s.href);
 
 const personLd = {
   "@context": "https://schema.org",
@@ -18,18 +26,15 @@ const personLd = {
   name,
   url: site.href,
   jobTitle: "Software Engineer",
-  sameAs: [
-    "https://github.com/samnart1",
-  ],
+  address: { "@type": "PostalAddress", addressLocality: profile.location },
+  sameAs,
 };
 ---
 
-<!-- Primary -->
 <title>{title}</title>
 <meta name="description" content={description} />
 <link rel="canonical" href={canonical} />
 
-<!-- Open Graph -->
 <meta property="og:type" content="website" />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
@@ -39,11 +44,9 @@ const personLd = {
 <meta property="og:image:height" content="630" />
 <meta property="og:site_name" content={name} />
 
-<!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={ogImage} />
 
-<!-- Structured data -->
 <script type="application/ld+json" set:html={JSON.stringify(personLd)} />

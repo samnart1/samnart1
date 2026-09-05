@@ -1,0 +1,932 @@
+---
+import Base from "../../layouts/Base.astro";
+import Topbar from "../../components/Topbar.astro";
+import {
+  breaker,
+  load,
+  design,
+  sms,
+  byRate,
+  openCeiling,
+  latency,
+  partialFailure,
+  cartEffect,
+  energy,
+  stack,
+  tripProbability,
+} from "../../data/tolerant";
+
+const name = "Samuel Tettey-Nartey";
+const description =
+  "A ten condition factorial experiment measuring what a circuit breaker costs in latency, availability and energy across 150 runs.";
+
+const maxOpens = Math.max(...byRate.map((r) => r.opens));
+const maxJoules = Math.max(...byRate.map((r) => r.joulesPerSuccessPct));
+const totalOutage = byRate[byRate.length - 1];
+const quarter = byRate[1];
+
+/* Threshold curve geometry. The insight is the SHAPE: engagement is
+   flat then a cliff, so we plot theoretical trip probability (smooth)
+   with the measured opens (points) overlaid, both normalised 0..1. */
+const CV = { w: 640, h: 300, pl: 44, pr: 16, pt: 20, pb: 40 };
+const cvX = (rate: number) => CV.pl + (rate / 100) * (CV.w - CV.pl - CV.pr);
+const cvY = (t: number) => CV.pt + (1 - t) * (CV.h - CV.pt - CV.pb);
+// smooth theoretical curve, 0..100 in fine steps
+const curvePts = Array.from({ length: 101 }, (_, i) => {
+  const t = tripProbability(i, breaker.failMax); // 0..1
+  return `${cvX(i).toFixed(1)},${cvY(t).toFixed(1)}`;
+});
+const curveLine = "M" + curvePts.join(" L");
+const curveArea = `M${cvX(0)},${cvY(0)} L` + curvePts.join(" L") + ` L${cvX(100)},${cvY(0)} Z`;
+// measured opens, normalised against the arithmetic ceiling so 100% sits near the top
+const openCeil = openCeiling.opens;
+const measured = byRate.map((r) => ({
+  rate: r.rate,
+  opens: r.opens,
+  x: cvX(r.rate),
+  y: cvY(Math.min(1, r.opens / openCeil)),
+}));
+
+const simDefaults = {
+  rate: 50,
+  failMax: breaker.failMax,
+  reset: breaker.resetTimeoutSec,
+  close: breaker.successesToClose,
+  speed: 25,
+  rps: 20,
+  windowSec: openCeiling.windowSec,
+};
+---
+
+<Base
+  title={`Tolerant · ${name}`}
+  description={description}
+  name={name}
+>
+  <Topbar name={name} back={{ href: "/#projects", label: "back to projects" }} />
+
+  <article class="doc">
+    <header class="head">
+      <p class="kicker">MSc thesis</p>
+      <h1>Tolerant</h1>
+      <p class="sub">What a circuit breaker actually costs you</p>
+
+      <dl class="specs">
+        <div><dt>design</dt><dd>2 × {design.failureRates.length} factorial</dd></div>
+        <div><dt>conditions</dt><dd>{design.conditions}</dd></div>
+        <div><dt>runs</dt><dd>{design.runs} over ~{design.approxHours} h</dd></div>
+        <div><dt>stack</dt><dd>{stack.join(", ")}</dd></div>
+      </dl>
+
+      <p class="cta">
+        <button class="btn btn--primary" data-lab-open data-lab-tab="sim" type="button">
+          Run the breaker
+        </button>
+        <button class="btn" data-lab-open data-lab-tab="data" type="button">
+          See the measurements
+        </button>
+      </p>
+    </header>
+
+    <h2>The question</h2>
+    <p>
+      Circuit breakers are standard advice. Wrap the call, trip the breaker when the
+      downstream service starts failing, stop hammering something that is already down.
+      Everyone repeats it. Almost nobody publishes what it costs.
+    </p>
+    <p>
+      I screened {sms.screened} papers on fault tolerance in microservices.
+      {sms.measuringEnergy} measured energy at all, and neither measured it as a
+      consequence of a pattern firing. That is the gap I built this for.
+    </p>
+
+    <h2>What I built</h2>
+    <p>
+      A ten service testbed, a reimplementation of Google's Online Boutique in Python and
+      FastAPI on Docker Compose. {breaker.guardedServices} services sit behind an
+      application level circuit breaker I wrote myself rather than pulled in, so every
+      state transition is mine to log. It opens after {breaker.failMax} consecutive
+      failures, waits {breaker.resetTimeoutSec} seconds, then lets one request through and
+      needs {breaker.successesToClose} clean successes before it closes.
+    </p>
+    <p>
+      Failures go in at Payment as instant HTTP 500s at a rate I set per run. Checkout
+      depends on Payment, so a Payment failure is a real dependency failure travelling
+      through the graph, not a synthetic one at the edge.
+    </p>
+
+    <h2>How I measured</h2>
+    <p>
+      Two factors. Breaker off or on, and Payment failing at
+      {design.failureRates.join(", ")} percent. {design.conditions} conditions. Locust
+      drives {load.users} concurrent users for {load.minutesPerCondition} minutes per
+      condition. Energy comes off the CPU's RAPL counters, read by Scaphandre and scraped
+      into Prometheus every 2 seconds. The first {load.warmupCutSec} seconds of every run
+      get cut so warmup never lands in a number.
+    </p>
+    <p>
+      Then I ran all {design.conditions} conditions {design.rounds} times.
+      {design.runs} experiments, roughly {design.approxHours} hours. Every figure below
+      has a confidence interval behind it rather than one lucky run.
+    </p>
+
+    <figure class="shot">
+      <img src="/img/tolerant-rounds.png"
+        alt={`Terminal output of the multi-round harness: ${design.rounds} rounds requested and complete, ${load.minutesPerCondition} minutes across ${design.conditions} conditions, resumable from a state log.`}
+        loading="lazy" width="1391" height="583" />
+      <figcaption>
+        The resumable harness. {design.runs} experiments over ~{design.approxHours} hours,
+        checkpointed to a state log so a crashed machine picks up where it left off.
+      </figcaption>
+    </figure>
+
+    <h2>What I found</h2>
+
+    <h3>It is a threshold, not a dial</h3>
+
+    <table class="fig">
+      <caption>Breaker opens per {load.minutesPerCondition} minute condition</caption>
+      <thead>
+        <tr>
+          <th scope="col">Payment failing</th>
+          <th scope="col">Opens</th>
+          <th scope="col" class="fig__barhead">
+            Chance any {breaker.failMax} in a row all fail
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {byRate.map((r) => {
+          const p = tripProbability(r.rate, breaker.failMax) * 100;
+          return (
+            <tr>
+              <th scope="row">{r.rate}%</th>
+              <td class="fig__bar">
+                <span class="bar" style={`--w:${(r.opens / maxOpens) * 100}%`}></span>
+                <b>{r.opens}</b>
+              </td>
+              <td class="fig__num">
+                {p === 0 ? "0" : p < 1 ? `${p.toFixed(2)}%` : `${p.toFixed(0)}%`}
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+
+    <figure class="curve">
+      <svg viewBox={`0 0 ${CV.w} ${CV.h}`} role="img"
+        aria-label="Circuit breaker engagement against payment failure rate. Engagement stays near zero up to 25 percent, then climbs steeply toward its arithmetic ceiling, matching the theoretical probability that five consecutive requests all fail.">
+        <defs>
+          <linearGradient id="curveFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--acc-projects)" stop-opacity="0.28" />
+            <stop offset="100%" stop-color="var(--acc-projects)" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+
+        {byRate.map((r) => (
+          <line x1={cvX(r.rate)} y1={CV.pt} x2={cvX(r.rate)} y2={CV.h - CV.pb}
+            stroke="var(--line)" stroke-width="1" stroke-dasharray="2 4" />
+        ))}
+        <line x1={CV.pl} y1={CV.h - CV.pb} x2={CV.w - CV.pr} y2={CV.h - CV.pb} stroke="var(--line-2, #d8d4c9)" stroke-width="1.5" />
+        <line x1={CV.pl} y1={CV.pt} x2={CV.pl} y2={CV.h - CV.pb} stroke="var(--line-2, #d8d4c9)" stroke-width="1.5" />
+
+        <path d={curveArea} fill="url(#curveFill)" />
+        <path d={curveLine} fill="none" stroke="var(--acc-projects)" stroke-width="2" stroke-linejoin="round" />
+
+        <polyline points={measured.map((m) => `${m.x},${m.y}`).join(" ")}
+          fill="none" stroke="var(--green)" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.85" />
+        {measured.map((m) => (
+          <g>
+            <circle cx={m.x} cy={m.y} r="4.5" fill="var(--bg-2)" stroke="var(--green)" stroke-width="2" />
+            <text x={m.x} y={m.y - 12} text-anchor="middle"
+              font-family="var(--font-mono)" font-size="12" fill="var(--muted)">{m.opens}</text>
+          </g>
+        ))}
+
+        {byRate.map((r) => (
+          <text x={cvX(r.rate)} y={CV.h - CV.pb + 20} text-anchor="middle"
+            font-family="var(--font-mono)" font-size="12" fill="var(--faint)">{r.rate}%</text>
+        ))}
+        <text x={(CV.pl + CV.w - CV.pr) / 2} y={CV.h - 4} text-anchor="middle"
+          font-family="var(--font-mono)" font-size="11" fill="var(--faint)">payment failing</text>
+      </svg>
+      <figcaption>
+        <span class="curve__key"><span class="curve__swatch curve__swatch--line"></span>measured opens</span>
+        <span class="curve__key"><span class="curve__swatch curve__swatch--fill"></span>chance {breaker.failMax} in a row all fail</span>
+        <span class="curve__note">Flat, then a cliff. The breaker is blind until failures cluster.</span>
+      </figcaption>
+    </figure>
+
+    <p>
+      At {quarter.rate} percent the breaker barely notices. It needs {breaker.failMax}
+      failures in a row, and at that rate a five request window comes up all bad about
+      once in a thousand tries. A quarter of your checkouts are dying and the breaker
+      sits there closed, doing nothing. That is not a misconfiguration. It is what a
+      consecutive failure counter means, and most people ship one without working out
+      where its blind spot sits.
+    </p>
+    <p>
+      The top end is arithmetic, not behaviour. One open costs
+      {breaker.resetTimeoutSec} seconds of cooldown plus about a second to trip again, so
+      {openCeiling.windowSec} seconds of load divided by {openCeiling.cycleSec} seconds a
+      cycle caps you at {openCeiling.opens} opens. I measured {totalOutage.opens}.
+      <button class="link" data-lab-open data-lab-tab="sim" type="button">
+        Try it yourself
+      </button>.
+    </p>
+
+    <h3>At total outage it earns its keep</h3>
+    <p>
+      Checkout p95 drops from {latency.checkoutP95MsOff} ms to
+      {latency.checkoutP95MsOn} ms, about {latency.factor} times faster. That is the
+      floor, not the ceiling. My injected failures return instantly, so there are no
+      timeout waits for the breaker to escape. Against a dependency that hangs instead of
+      erroring, the gap is wider.
+    </p>
+
+    <h3>At partial failure you pay for it</h3>
+    <p>
+      At {partialFailure.injectedPct} percent injected, observed checkout failure was
+      {partialFailure.observedFailurePct} percent. The extra
+      {partialFailure.observedFailurePct - partialFailure.injectedPct} points are the
+      breaker turning away requests that would have gone through. At 75 percent it costs
+      {Math.abs(partialFailure.availabilityDeltaPp)} points of availability and
+      {Math.abs(partialFailure.throughputDeltaPct)} percent of throughput. Roughly half of
+      the {partialFailure.rejected} rejected requests would have succeeded.
+    </p>
+
+    <h3>Failure spread through the cart, not the thread pool</h3>
+    <p>
+      This one I did not plan for. The standard cascade story is blocked threads and
+      exhausted pools. That is not what happened. Carts empty only after a payment
+      succeeds, so every suppressed checkout leaves its cart intact, and the cart view
+      fans out one catalog call per item. Over {load.minutesPerCondition} minutes the
+      carts grow and the fan out grows with them. <code>/cart</code> went from
+      {cartEffect.beforeMs} ms to {cartEffect.afterMs.toLocaleString("en-GB")} ms inside a
+      single run. The failure propagated through persistent application state. No thread
+      ever blocked.
+    </p>
+
+    <h3>Same watts, more joules per useful transaction</h3>
+
+    <table class="fig">
+      <caption>Energy per successful request, breaker on against breaker off</caption>
+      <thead>
+        <tr>
+          <th scope="col">Payment failing</th>
+          <th scope="col">Change</th>
+        </tr>
+      </thead>
+      <tbody>
+        {byRate.map((r) => (
+          <tr>
+            <th scope="row">{r.rate}%</th>
+            <td class="fig__bar">
+              <span
+                class="bar bar--warn"
+                style={`--w:${(r.joulesPerSuccessPct / maxJoules) * 100}%`}
+              ></span>
+              <b>{r.approxZero ? "~0" : `+${r.joulesPerSuccessPct}%`}</b>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+
+    <p>
+      Raw power does not move. Across {design.rounds} rounds every delta sits inside
+      {energy.powerBandPct} percent and every confidence interval crosses zero. What moves
+      is energy per successful request. The machine draws the same power and completes
+      less work with it, so each transaction that does land costs more.
+    </p>
+
+    <h2>What it adds up to</h2>
+    <p>
+      The breaker relocates cost. It takes it off latency and energy when the dependency
+      is fully down, and puts it onto availability and throughput when the dependency is
+      only half down. Good trade at total outage, a real bill at partial failure, and
+      which one you are in decides whether you want it.
+    </p>
+    <p>
+      One number changed on the way here. A single run had suggested the breaker drew up
+      to 11 percent less power. {design.rounds} rounds killed it. The per transaction
+      penalty survived, and turned out to be the sharper result anyway.
+    </p>
+  </article>
+
+  <dialog class="lab" id="lab" aria-labelledby="lab-title">
+    <div class="lab__bar">
+      <h2 class="lab__title" id="lab-title">Breaker lab</h2>
+      <div class="tabs" role="tablist" aria-label="Breaker lab views">
+        <button class="tab" role="tab" id="tab-sim" aria-controls="panel-sim" aria-selected="true" type="button">Simulate</button>
+        <button class="tab" role="tab" id="tab-data" aria-controls="panel-data" aria-selected="false" type="button">Measured</button>
+      </div>
+      <button class="lab__close" data-lab-close aria-label="Close" type="button">✕</button>
+    </div>
+
+    <div class="lab__body" id="panel-sim" role="tabpanel" aria-labelledby="tab-sim" tabindex="0">
+      <div class="sim__top">
+        <span class="state" data-state>closed</span>
+        <span class="sim__clock" data-clock>0.0 s</span>
+        <span class="sim__spacer"></span>
+        <button class="btn btn--primary" data-run type="button">Run</button>
+        <button class="btn" data-reset type="button">Reset</button>
+      </div>
+
+      <div class="strip" data-strip aria-hidden="true"></div>
+      <p class="legend">
+        <span><i class="sw sw--ok"></i>served</span>
+        <span><i class="sw sw--fail"></i>failed</span>
+        <span><i class="sw sw--rej"></i>rejected by breaker</span>
+      </p>
+
+      <dl class="counts">
+        <div><dt>opens</dt><dd data-c="opens">0</dd></div>
+        <div><dt>served</dt><dd data-c="ok">0</dd></div>
+        <div><dt>failed</dt><dd data-c="failed">0</dd></div>
+        <div><dt>rejected</dt><dd data-c="rejected">0</dd></div>
+      </dl>
+
+      <div class="ctrls">
+        <label>
+          <span>Payment failing <b data-v="rate">{simDefaults.rate}%</b></span>
+          <input type="range" data-i="rate" min="0" max="100" step="5" value={simDefaults.rate} />
+        </label>
+        <label>
+          <span>Failures to open <b data-v="failMax">{simDefaults.failMax}</b></span>
+          <input type="range" data-i="failMax" min="1" max="10" step="1" value={simDefaults.failMax} />
+        </label>
+        <label>
+          <span>Reset timeout <b data-v="reset">{simDefaults.reset} s</b></span>
+          <input type="range" data-i="reset" min="5" max="60" step="5" value={simDefaults.reset} />
+        </label>
+        <label>
+          <span>Successes to close <b data-v="close">{simDefaults.close}</b></span>
+          <input type="range" data-i="close" min="1" max="5" step="1" value={simDefaults.close} />
+        </label>
+        <label>
+          <span>Speed <b data-v="speed">{simDefaults.speed}×</b></span>
+          <input type="range" data-i="speed" min="1" max="60" step="1" value={simDefaults.speed} />
+        </label>
+      </div>
+
+      <p class="note" data-note></p>
+    </div>
+
+    <div class="lab__body" id="panel-data" role="tabpanel" aria-labelledby="tab-data" tabindex="0" hidden>
+      <table class="fig">
+        <caption>Measured per failure rate. Pick a row to load it into the simulator.</caption>
+        <thead>
+          <tr>
+            <th scope="col">Payment failing</th>
+            <th scope="col">Opens</th>
+            <th scope="col">Joules per success</th>
+            <th scope="col"><span class="sr-only">Load into simulator</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {byRate.map((r) => (
+            <tr>
+              <th scope="row">{r.rate}%</th>
+              <td class="fig__bar">
+                <span class="bar" style={`--w:${(r.opens / maxOpens) * 100}%`}></span>
+                <b>{r.opens}</b>
+              </td>
+              <td class="fig__bar">
+                <span
+                  class="bar bar--warn"
+                  style={`--w:${(r.joulesPerSuccessPct / maxJoules) * 100}%`}
+                ></span>
+                <b>{r.approxZero ? "~0" : `+${r.joulesPerSuccessPct}%`}</b>
+              </td>
+              <td>
+                <button class="link" data-load={r.rate} type="button">load</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <dl class="meta">
+        <div><dt>breaker</dt><dd>opens on {breaker.failMax} consecutive failures, {breaker.resetTimeoutSec} s reset, {breaker.successesToClose} successes to close</dd></div>
+        <div><dt>load</dt><dd>{load.users} users, {load.spawnRatePerSec}/s spawn, {load.minutesPerCondition} min per condition</dd></div>
+        <div><dt>energy</dt><dd>RAPL via Scaphandre, scraped every 2 s, first {load.warmupCutSec} s discarded</dd></div>
+        <div><dt>power</dt><dd>flat within {energy.powerBandPct}% across {design.rounds} rounds, every interval crosses zero</dd></div>
+      </dl>
+
+      <p class="note">
+        The simulator is an idealised model of the same state machine. It reproduces the
+        shape of the measured curve, not the absolute numbers, because it has no network,
+        no queueing and no real service behind it.
+      </p>
+    </div>
+  </dialog>
+</Base>
+
+<style>
+  .doc {
+    max-width: 68ch;
+    margin-inline: auto;
+    padding: calc(3.75rem + var(--space-xl)) var(--space-m) var(--space-xl);
+    text-align: left;
+  }
+
+  .head { padding-bottom: var(--space-l); border-bottom: 1px solid var(--line); }
+  .kicker {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--acc-projects);
+  }
+  .head h1 {
+    font-family: var(--font-pixel);
+    font-size: var(--step-3);
+    color: var(--green);
+    line-height: 1.05;
+    margin-top: var(--space-2xs);
+  }
+  .sub { font-size: var(--step-1); color: var(--bright); margin-top: var(--space-2xs); }
+
+  .specs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: var(--space-s);
+    margin-top: var(--space-l);
+  }
+  .specs dt { font-family: var(--font-mono); font-size: var(--step--1); color: var(--faint); }
+  .specs dd { font-size: var(--step--1); color: var(--text); margin-top: 0.2rem; }
+
+  .cta { display: flex; flex-wrap: wrap; gap: var(--space-2xs); margin-top: var(--space-l); }
+
+  .doc h2 {
+    font-family: var(--font-pixel);
+    font-size: var(--step-2);
+    color: var(--acc-projects);
+    margin-top: var(--space-xl);
+  }
+  .doc h3 {
+    font-size: var(--step-1);
+    color: var(--bright);
+    font-weight: 700;
+    margin-top: var(--space-l);
+  }
+  .doc p { margin-top: var(--space-s); color: var(--text); line-height: 1.75; }
+
+  /* terminal screenshot figure */
+  .shot {
+    margin: var(--space-l) 0 0;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-sunken, #060607);
+  }
+  .shot img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .shot figcaption {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--faint);
+    padding: var(--space-s) var(--space-m);
+    border-top: 1px solid var(--line);
+    line-height: 1.6;
+  }
+
+  /* threshold curve */
+  .curve {
+    margin: var(--space-l) 0 0;
+    padding: var(--space-m);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--bg-2);
+  }
+  .curve svg { width: 100%; height: auto; display: block; }
+  .curve figcaption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-s);
+    margin-top: var(--space-s);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--faint);
+  }
+  .curve__key { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--muted); }
+  .curve__swatch { width: 1.1rem; height: 0; border-radius: 2px; }
+  .curve__swatch--line { border-top: 2px dashed var(--green); }
+  .curve__swatch--fill { border-top: 3px solid var(--acc-projects); }
+  .curve__note { margin-left: auto; color: var(--faint); }
+  @media (max-width: 40rem) { .curve__note { margin-left: 0; width: 100%; } }
+  .doc code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 0.1rem 0.35rem;
+    color: var(--bright);
+  }
+
+  @media (max-width: 48rem) {
+    .doc { padding: calc(3.5rem + var(--space-l)) var(--space-s) var(--space-l); }
+  }
+</style>
+
+<style is:global>
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+  }
+
+  .btn {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--text);
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: border-color var(--dur-fast), color var(--dur-fast);
+  }
+  .btn:hover { border-color: var(--blue); color: var(--bright); }
+  .btn--primary { color: var(--green); border-color: color-mix(in oklab, var(--green) 45%, var(--line)); }
+
+  .link {
+    font: inherit;
+    color: var(--blue);
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .link:hover { color: var(--bright); }
+
+  .fig {
+    width: 100%;
+    margin-top: var(--space-m);
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+  }
+  .fig caption { text-align: left; color: var(--faint); padding-bottom: var(--space-2xs); }
+  .fig th, .fig td {
+    text-align: left;
+    padding: 0.55rem 0.75rem 0.55rem 0;
+    border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+  }
+  .fig thead th { color: var(--faint); font-weight: 400; }
+  .fig tbody th { color: var(--text); font-weight: 400; white-space: nowrap; }
+  .fig__num { color: var(--muted); white-space: nowrap; }
+  .fig__barhead { width: 40%; }
+  .fig__bar { display: flex; align-items: center; gap: 0.6rem; border-bottom: 0; }
+  .fig tbody tr { border-bottom: 1px solid var(--line); }
+  .fig tbody tr td { border-bottom: 0; }
+  .fig tbody tr th { border-bottom: 0; }
+  .bar {
+    display: block;
+    height: 0.5rem;
+    width: var(--w, 0%);
+    min-width: 2px;
+    border-radius: 999px;
+    background: var(--acc-projects);
+    flex: none;
+    max-width: 8rem;
+  }
+  .bar--warn { background: var(--acc-work); }
+  .fig__bar b { color: var(--bright); font-weight: 400; white-space: nowrap; }
+
+  .lab {
+    margin: auto;
+    width: min(46rem, calc(100vw - 2rem));
+    max-height: min(46rem, calc(100vh - 2rem));
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--bg-2);
+    color: var(--text);
+    overflow: hidden;
+  }
+  .lab::backdrop { background: color-mix(in oklab, #000 70%, transparent); }
+  .lab__bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-s);
+    padding: var(--space-s) var(--space-m);
+    border-bottom: 1px solid var(--line);
+  }
+  .lab__title {
+    font-family: var(--font-pixel);
+    font-size: var(--step-0);
+    color: var(--green);
+    margin-right: auto;
+  }
+  .tabs { display: flex; gap: 0.25rem; }
+  .tab {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--muted);
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: 0.35rem 0.8rem;
+    cursor: pointer;
+  }
+  .tab[aria-selected="true"] { color: var(--bright); border-color: var(--line); background: var(--surface); }
+  .lab__close {
+    font-size: 0.9rem;
+    color: var(--muted);
+    background: none;
+    border: 0;
+    cursor: pointer;
+    padding: 0.25rem;
+  }
+  .lab__close:hover { color: var(--bright); }
+  .lab__body {
+    padding: var(--space-m);
+    overflow-y: auto;
+    max-height: calc(min(46rem, 100vh - 2rem) - 4rem);
+  }
+
+  .sim__top { display: flex; align-items: center; gap: var(--space-2xs); }
+  .sim__spacer { flex: 1; }
+  .sim__clock { font-family: var(--font-mono); font-size: var(--step--1); color: var(--faint); }
+  .state {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    color: var(--green);
+  }
+  .state[data-phase="open"] { color: var(--acc-education); border-color: color-mix(in oklab, var(--acc-education) 45%, var(--line)); }
+  .state[data-phase="half"] { color: var(--acc-work); border-color: color-mix(in oklab, var(--acc-work) 45%, var(--line)); }
+
+  .strip {
+    display: flex;
+    gap: 2px;
+    align-items: flex-end;
+    height: 3.5rem;
+    margin-top: var(--space-s);
+    padding: 0.4rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg);
+    overflow: hidden;
+  }
+  .strip i { display: block; flex: 1 1 0; min-width: 2px; border-radius: 1px; background: var(--line); height: 30%; }
+  .strip i.ok { background: var(--green); height: 100%; }
+  .strip i.fail { background: var(--acc-education); height: 60%; }
+  .strip i.rej { background: var(--acc-work); height: 45%; }
+
+  .legend { display: flex; gap: var(--space-s); flex-wrap: wrap; margin-top: var(--space-2xs); font-family: var(--font-mono); font-size: var(--step--2); color: var(--faint); }
+  .legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
+  .sw { width: 0.6rem; height: 0.6rem; border-radius: 2px; display: block; }
+  .sw--ok { background: var(--green); }
+  .sw--fail { background: var(--acc-education); }
+  .sw--rej { background: var(--acc-work); }
+
+  .counts {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-s);
+    margin-top: var(--space-m);
+  }
+  .counts dt { font-family: var(--font-mono); font-size: var(--step--2); color: var(--faint); }
+  .counts dd { font-family: var(--font-mono); font-size: var(--step-1); color: var(--bright); margin-top: 0.15rem; }
+
+  .ctrls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: var(--space-s);
+    margin-top: var(--space-m);
+    padding-top: var(--space-m);
+    border-top: 1px solid var(--line);
+  }
+  .ctrls label { display: block; font-family: var(--font-mono); font-size: var(--step--2); color: var(--muted); }
+  .ctrls label b { color: var(--bright); font-weight: 400; }
+  .ctrls input[type="range"] { width: 100%; margin-top: 0.35rem; accent-color: var(--green); }
+
+  .note {
+    margin-top: var(--space-m);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .meta { margin-top: var(--space-m); display: grid; gap: var(--space-2xs); }
+  .meta div { display: grid; grid-template-columns: 6rem 1fr; gap: var(--space-s); }
+  .meta dt { font-family: var(--font-mono); font-size: var(--step--2); color: var(--faint); }
+  .meta dd { font-size: var(--step--1); color: var(--text); }
+
+  @media (max-width: 40rem) {
+    .counts { grid-template-columns: repeat(2, 1fr); }
+    .lab__bar { flex-wrap: wrap; }
+    .meta div { grid-template-columns: 1fr; gap: 0; }
+  }
+</style>
+
+<script>
+  const RPS = 20;
+  const STRIP = 90;
+
+  interface Cfg { rate: number; failMax: number; reset: number; close: number; speed: number; }
+  type Phase = "closed" | "open" | "half";
+
+  function initLab() {
+    const dialog = document.getElementById("lab") as HTMLDialogElement | null;
+    if (!dialog || dialog.dataset.ready === "1") return;
+    dialog.dataset.ready = "1";
+
+    const cfg: Cfg = { rate: 50, failMax: 5, reset: 30, close: 2, speed: 25 };
+
+    let phase: Phase = "closed";
+    let t = 0;
+    let openedAt = 0;
+    let consecFail = 0;
+    let consecOk = 0;
+    let opens = 0;
+    let ok = 0;
+    let failed = 0;
+    let rejected = 0;
+    let carry = 0;
+    let running = false;
+    let raf = 0;
+    let last = 0;
+
+    const strip = dialog.querySelector("[data-strip]") as HTMLElement;
+    const cells: HTMLElement[] = [];
+    for (let i = 0; i < STRIP; i++) {
+      const el = document.createElement("i");
+      strip.appendChild(el);
+      cells.push(el);
+    }
+    let head = 0;
+
+    const stateEl = dialog.querySelector("[data-state]") as HTMLElement;
+    const clockEl = dialog.querySelector("[data-clock]") as HTMLElement;
+    const noteEl = dialog.querySelector("[data-note]") as HTMLElement;
+    const runBtn = dialog.querySelector("[data-run]") as HTMLButtonElement;
+    const counters: Record<string, HTMLElement> = {};
+    dialog.querySelectorAll<HTMLElement>("[data-c]").forEach((el) => {
+      counters[el.dataset.c as string] = el;
+    });
+
+    function push(kind: "ok" | "fail" | "rej") {
+      const cell = cells[head % STRIP];
+      cell.className = kind;
+      head++;
+    }
+
+    function reset() {
+      phase = "closed";
+      t = 0; openedAt = 0; consecFail = 0; consecOk = 0;
+      opens = 0; ok = 0; failed = 0; rejected = 0; carry = 0;
+      cells.forEach((c) => (c.className = ""));
+      head = 0;
+      render();
+    }
+
+    function step(dt: number) {
+      t += dt;
+      if (phase === "open" && t - openedAt >= cfg.reset) {
+        phase = "half";
+        consecOk = 0;
+      }
+
+      carry += RPS * dt;
+      let n = Math.min(Math.floor(carry), 80);
+      carry -= n;
+
+      const p = cfg.rate / 100;
+      while (n-- > 0) {
+        if (phase === "open") { rejected++; push("rej"); continue; }
+        const isFail = Math.random() < p;
+        if (isFail) {
+          failed++; push("fail");
+          if (phase === "half") { phase = "open"; openedAt = t; opens++; consecFail = 0; }
+          else {
+            consecFail++;
+            if (consecFail >= cfg.failMax) { phase = "open"; openedAt = t; opens++; consecFail = 0; }
+          }
+        } else {
+          ok++; push("ok");
+          if (phase === "half") {
+            consecOk++;
+            if (consecOk >= cfg.close) { phase = "closed"; consecFail = 0; }
+          } else consecFail = 0;
+        }
+      }
+    }
+
+    function render() {
+      stateEl.textContent = phase === "half" ? "half open" : phase;
+      stateEl.dataset.phase = phase;
+      clockEl.textContent = `${t.toFixed(1)} s`;
+      counters.opens.textContent = String(opens);
+      counters.ok.textContent = ok.toLocaleString("en-GB");
+      counters.failed.textContent = failed.toLocaleString("en-GB");
+      counters.rejected.textContent = rejected.toLocaleString("en-GB");
+
+      const p = cfg.rate / 100;
+      const trip = Math.pow(p, cfg.failMax) * 100;
+      const tripText = trip === 0 ? "never" : trip < 1 ? `${trip.toFixed(3)}%` : `${trip.toFixed(1)}%`;
+      let ceiling = "no opens at this rate";
+      if (p > 0) {
+        const cycle = cfg.reset + cfg.failMax / (RPS * p);
+        ceiling = `${Math.floor(1800 / cycle)} opens in a 30 minute run`;
+      }
+      noteEl.textContent =
+        `Any ${cfg.failMax} requests in a row all fail ${tripText} of the time, ` +
+        `so the ceiling is ${ceiling}.`;
+    }
+
+    function frame(now: number) {
+      if (!running) return;
+      const dtReal = Math.min((now - last) / 1000, 0.1);
+      last = now;
+      step(dtReal * cfg.speed);
+      render();
+      raf = requestAnimationFrame(frame);
+    }
+
+    function setRunning(on: boolean) {
+      running = on;
+      runBtn.textContent = on ? "Pause" : "Run";
+      if (on) { last = performance.now(); raf = requestAnimationFrame(frame); }
+      else cancelAnimationFrame(raf);
+    }
+
+    runBtn.addEventListener("click", () => setRunning(!running));
+    dialog.querySelector("[data-reset]")!.addEventListener("click", () => {
+      setRunning(false);
+      reset();
+    });
+
+    dialog.querySelectorAll<HTMLInputElement>("[data-i]").forEach((input) => {
+      const key = input.dataset.i as keyof Cfg;
+      const out = dialog.querySelector(`[data-v="${key}"]`) as HTMLElement;
+      const paint = () => {
+        cfg[key] = Number(input.value);
+        out.textContent =
+          key === "rate" ? `${input.value}%`
+          : key === "reset" ? `${input.value} s`
+          : key === "speed" ? `${input.value}×`
+          : input.value;
+        render();
+      };
+      input.addEventListener("input", paint);
+      paint();
+    });
+
+    const tabs = Array.from(dialog.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    function showTab(id: string) {
+      tabs.forEach((tab) => {
+        const on = tab.id === `tab-${id}`;
+        tab.setAttribute("aria-selected", String(on));
+        const panel = document.getElementById(tab.getAttribute("aria-controls")!)!;
+        panel.hidden = !on;
+      });
+    }
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => showTab(tab.id.replace("tab-", "")));
+    });
+
+    dialog.querySelectorAll<HTMLButtonElement>("[data-load]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const input = dialog.querySelector('[data-i="rate"]') as HTMLInputElement;
+        input.value = btn.dataset.load!;
+        input.dispatchEvent(new Event("input"));
+        setRunning(false);
+        reset();
+        showTab("sim");
+      });
+    });
+
+    document.querySelectorAll<HTMLButtonElement>("[data-lab-open]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        showTab(btn.dataset.labTab || "sim");
+        dialog.showModal();
+        if (!matchMedia("(prefers-reduced-motion: reduce)").matches) setRunning(true);
+      });
+    });
+    dialog.querySelector("[data-lab-close]")!.addEventListener("click", () => dialog.close());
+    dialog.addEventListener("close", () => setRunning(false));
+    dialog.addEventListener("click", (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+
+    reset();
+  }
+
+  initLab();
+  document.addEventListener("astro:page-load", initLab);
+</script>

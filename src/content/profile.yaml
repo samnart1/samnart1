@@ -1,17 +1,17 @@
 profile:
   name: "Samuel Tettey-Nartey"
-  role: "Software Engineering / Backend / Distributed Systems"
+  role: "Backend and distributed systems engineer"
+  tagline: "MSc Software Engineering at unibz"
   location: "Bolzano, Italy"
-  affiliations:
-    - "Backend & Distributed Systems Engineer"
-    - "MSc Software Engineering @ unibz"
-    - "Based in Bolzano, Italy"
+  availability: "Open to backend and distributed systems roles"
+  # Drop a CV at public/cv.pdf and uncomment to show the chip.
+  # cv: "/cv.pdf"
   socials:
     - label: "GitHub"
       href: "https://github.com/samnart1"
       icon: "github"
     - label: "Email"
-      href: "mailto:hello@samnart.website"   # TODO: confirm real public email
+      href: "mailto:hello@samnart.website"
       icon: "mail"
     - label: "LinkedIn"
       href: "https://www.linkedin.com/in/samuel-tettey-nartey-17740b165/"

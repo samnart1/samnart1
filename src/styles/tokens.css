@@ -1,5 +1,5 @@
 /* ============================================================
-   OMARCHY-INSPIRED — Tokyo Night palette, candy fonts
+   OMARCHY-INSPIRED, Tokyo Night palette
    ============================================================ */
 :root {
   --font-pixel: "Pixelify Sans", ui-monospace, monospace;   /* name / display */
@@ -19,9 +19,6 @@
   --space-l:   clamp(2.00rem, 1.85rem + 0.75vw, 2.50rem);
   --space-xl:  clamp(3.00rem, 2.70rem + 1.50vw, 4.00rem);
 
-  --content-width: 72rem;
-  --wide-width: 80rem;
-  --radius-m: 14px;
 
   /* Tokyo Night (Omarchy default) */
   --bg:      #16161e;
@@ -30,13 +27,11 @@
   --text:    #c8c9e0;   /* soft lavender-white body */
   --bright:  #e6e7f5;   /* brighter for emphasis */
   --muted:   #9294b3;
-  --faint:   #6a6c8a;
+  --faint:   #8083a6;
   --line:    #2a2b3d;
-  --green:   #9ece6a;   /* candy green — hero/name */
+  --green:   #9ece6a;   /* hero and name */
   --blue:    #7aa2f7;   /* links */
-  --blue-dim:#6a8fe0;
   /* per-section accents (each ~candy on Tokyo Night) */
-  --acc-hero:     #9ece6a;   /* green */
   --acc-about:    #7dcfff;   /* cyan */
   --acc-work:     #e0af68;   /* amber */
   --acc-projects: #bb9af7;   /* purple */
