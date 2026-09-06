@@ -7,5 +7,4 @@ featured: true
 draft: false
 ---
 
-Distributed workflow orchestration engine: DAG execution, saga patterns, and
-fault-tolerant job handling over Redis Streams.
+Distributed workflow orchestration over Redis Streams

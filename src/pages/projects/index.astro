@@ -5,113 +5,81 @@ import Topbar from "../../components/Topbar.astro";
 
 const name = "Samuel Tettey-Nartey";
 
-const all = (await getCollection("projects", (e) => !e.data.draft)).sort(
+const projects = (await getCollection("projects", (e) => !e.data.draft)).sort(
   (a, b) => a.data.order - b.data.order
 );
 const rendered = await Promise.all(
-  all.map(async (e) => ({ data: e.data, Content: (await render(e)).Content }))
+  projects.map(async (e) => ({ data: e.data, Content: (await render(e)).Content }))
 );
 
-const groupsOrder = ["systems", "backend", "web", "experiments", "collections"] as const;
-const labels: Record<string, string> = {
-  systems: "Systems",
-  backend: "Backend",
-  web: "Web & apps",
-  experiments: "Experiments",
-  collections: "Collections & labs",
-};
-const grouped = groupsOrder
-  .map((cat) => ({ cat, items: rendered.filter((r) => r.data.category === cat) }))
-  .filter((g) => g.items.length > 0);
+function primaryLink(d: Record<string, any>) {
+  if (d.page) return { label: "more", href: d.page, ext: false };
+  if (d.demo) return { label: "live", href: d.demo, ext: true };
+  if (d.appStore) return { label: "app store", href: d.appStore, ext: true };
+  if (d.playStore) return { label: "play store", href: d.playStore, ext: true };
+  if (d.repo) return { label: "github", href: d.repo, ext: true };
+  return null;
+}
 ---
 
-<Base title={`Projects — ${name}`} description="Everything I've built — systems, backend, web, and experiments." name={name}>
-  <Topbar name={name} />
+<Base title={`Projects — ${name}`} description="Things I've built." name={name}>
+  <Topbar name={name} back={{ href: "/#projects", label: "Back" }} />
 
-  <main class="wrap doc">
-    <a class="back" href="/#projects">← Back</a>
+  <main class="doc">
     <h1 class="ptitle"># projects</h1>
-    <p class="intro">Everything worth showing. The deep write-ups live on their own pages; the rest link straight to the source.</p>
 
-    {grouped.map((g) => (
-      <section class="group">
-        <h2 class="group__label">{labels[g.cat]}</h2>
-        <ul class="rows" role="list">
-          {g.items.map(({ data, Content }) => {
-            const primary = data.page
-              ? { href: data.page, label: "Write-up", external: false }
-              : data.demo
-                ? { href: data.demo, label: "Demo", external: true }
-                : data.repo
-                  ? { href: data.repo, label: "GitHub", external: true }
-                  : null;
-            return (
-              <li class="prow">
-                <div class="prow__main">
-                  <h3 class="prow__name">
-                    {data.page
-                      ? <a href={data.page}>{data.name}</a>
-                      : data.repo
-                        ? <a href={data.repo} target="_blank" rel="noopener">{data.name}<span class="arw">↗</span></a>
-                        : data.name}
-                  </h3>
-                  <div class="prow__desc"><Content /></div>
-                  <p class="prow__stack">{data.stack.join(" · ")}</p>
-                </div>
-                {primary && (
-                  <a class="prow__link" href={primary.href}
-                    target={primary.external ? "_blank" : undefined}
-                    rel={primary.external ? "noopener" : undefined}>
-                    {primary.label}<span class="arw" aria-hidden="true">{primary.external ? "↗" : "→"}</span>
-                  </a>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      </section>
-    ))}
+    <ul class="list" role="list">
+      {rendered.map(({ data, Content }) => {
+        const link = primaryLink(data);
+        return (
+          <li class="item">
+            <div class="item__row">
+              <h2 class="item__name">
+                {link
+                  ? <a href={link.href} target={link.ext ? "_blank" : undefined} rel={link.ext ? "noopener" : undefined}>{data.name}</a>
+                  : data.name}
+              </h2>
+              {link && (
+                <a class="item__link" href={link.href} target={link.ext ? "_blank" : undefined} rel={link.ext ? "noopener" : undefined}>
+                  {link.label}{link.ext ? " ↗" : " →"}
+                </a>
+              )}
+              {!link && data.private && <span class="item__link item__link--muted">private</span>}
+            </div>
+            <div class="item__desc"><Content /></div>
+            <p class="item__stack">{data.stack.join(" · ")}</p>
+          </li>
+        );
+      })}
+    </ul>
   </main>
 </Base>
 
 <style>
-  .doc { padding: calc(4rem + var(--space-l)) var(--space-m) var(--space-2xl); max-width: 60rem; }
-  .back {
-    display: inline-block; font-family: var(--font-mono); font-size: var(--step--1);
-    color: var(--muted); margin-bottom: var(--space-l);
+  .doc {
+    max-width: 40rem; margin-inline: auto;
+    padding: 7rem var(--space-m) var(--space-2xl);
   }
-  .back:hover { color: var(--acc-projects); text-decoration: none; }
   .ptitle {
-    font-family: var(--font-pixel); font-size: var(--step-2); color: var(--acc-projects); font-weight: 500;
+    font-family: var(--font-pixel); font-size: var(--step-2); margin-top: var(--space-xl);
+    color: var(--acc-projects); font-weight: 500; margin-bottom: var(--space-l);
   }
-  .intro { color: var(--muted); margin-top: var(--space-s); max-width: 56ch; }
 
-  .group { margin-top: var(--space-xl); }
-  .group__label {
-    font-family: var(--font-mono); font-size: var(--step--1); letter-spacing: 0.08em;
-    text-transform: uppercase; color: var(--faint); font-weight: 600;
-    padding-bottom: var(--space-2xs); border-bottom: 1px solid var(--line);
+  .list { display: flex; flex-direction: column; gap: var(--space-l); }
+  .item__row { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-s); }
+  .item__name { font-size: var(--step-1); font-weight: 700; color: var(--bright); letter-spacing: -0.01em; }
+  .item__name a { color: var(--bright); }
+  .item__name a:hover { color: var(--acc-projects); text-decoration: none; }
+  .item__link {
+    flex: none; font-family: var(--font-mono); font-size: var(--step--1);
+    color: var(--muted); white-space: nowrap; transition: color var(--dur-fast);
   }
-  .rows { display: flex; flex-direction: column; margin-top: var(--space-s); }
-  .prow {
-    display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-m);
-    padding: var(--space-m) 0; border-bottom: 1px solid var(--line-soft, #1a1a1e);
-  }
-  .prow__name { font-size: var(--step-1); font-weight: 700; color: var(--bright); }
-  .prow__name a { color: var(--bright); }
-  .prow__name a:hover { color: var(--acc-projects); text-decoration: none; }
-  .prow__desc { margin-top: 0.2rem; }
-  .prow__desc :global(p) { color: var(--muted); font-size: var(--step-0); }
-  .prow__stack { font-family: var(--font-mono); font-size: var(--step--2); color: var(--faint); margin-top: var(--space-2xs); }
-  .prow__link {
-    flex: none; font-family: var(--font-mono); font-size: var(--step--1); color: var(--muted); font-weight: 600;
-    white-space: nowrap; padding-top: 0.3rem;
-  }
-  .prow__link:hover { color: var(--acc-projects); text-decoration: none; }
-  .arw { font-size: 0.8em; color: var(--faint); }
-  .prow__name a:hover .arw, .prow__link:hover .arw { color: var(--acc-projects); }
-
-  @media (max-width: 40rem) {
-    .prow { flex-direction: column; gap: var(--space-2xs); }
+  .item__link:hover { color: var(--acc-projects); text-decoration: none; }
+  .item__link--muted { color: var(--faint); }
+  .item__desc { margin-top: var(--space-3xs); }
+  .item__desc :global(p) { color: var(--muted); font-size: var(--step-0); line-height: 1.6; }
+  .item__stack {
+    font-family: var(--font-mono); font-size: 0.72rem;
+    color: var(--faint); margin-top: var(--space-2xs); letter-spacing: -0.01em;
   }
 </style>

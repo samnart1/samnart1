@@ -7,5 +7,4 @@ featured: true
 draft: false
 ---
 
-Football prediction platform: a FastAPI backend with a deterministic scoring
-engine on PostgreSQL and a React frontend.
+Deterministic football predictions.
