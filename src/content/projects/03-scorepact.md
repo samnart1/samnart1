@@ -7,4 +7,4 @@ featured: true
 draft: false
 ---
 
-Deterministic football predictions.
+A deterministic football predictions app.

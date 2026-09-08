@@ -23,7 +23,7 @@ function primaryLink(d: Record<string, any>) {
 ---
 
 <Base title={`Projects — ${name}`} description="Things I've built." name={name}>
-  <Topbar name={name} back={{ href: "/#projects", label: "Back" }} />
+  <Topbar name={name} back={{ href: "/#projects", label: "projects" }} />
 
   <main class="doc">
     <h1 class="ptitle"># projects</h1>
@@ -61,8 +61,8 @@ function primaryLink(d: Record<string, any>) {
     padding: 7rem var(--space-m) var(--space-2xl);
   }
   .ptitle {
-    font-family: var(--font-pixel); font-size: var(--step-2); margin-top: var(--space-xl);
-    color: var(--acc-projects); font-weight: 500; margin-bottom: var(--space-l);
+    font-family: var(--font-pixel); font-size: var(--step-2);
+    color: var(--acc-projects); font-weight: 500; margin-bottom: var(--space-xl);
   }
 
   .list { display: flex; flex-direction: column; gap: var(--space-l); }

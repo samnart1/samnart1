@@ -7,4 +7,4 @@ featured: true
 draft: false
 ---
 
-A household ledger where money can't drift
+A household ledger app for tracking spending.

@@ -41,7 +41,7 @@ const icons = {
 ---
 
 <Base title={`${p.name} · Software Engineer`} description={description} name={p.name}>
-  <Topbar name={p.name} home="#top" hint={true} />
+  <Topbar name={p.name} home="#top" />
 
   <div class="deck">
     <section class="block intro" id="top">
@@ -106,50 +106,36 @@ const icons = {
       <ul class="cards" role="list">
         {projR.map(({ data, Content }) => {
           const primary = data.page
-            ? { href: data.page, label: "Read the write-up", external: false }
+            ? { href: data.page, label: "more", external: false }
             : data.demo
-              ? { href: data.demo, label: "Live demo", external: true }
+              ? { href: data.demo, label: "live", external: true }
               : data.repo
-                ? { href: data.repo, label: "GitHub", external: true }
-                : null;
-          const secondary = data.page && data.repo
-            ? { href: data.repo, label: "GitHub" }
-            : data.writeup
-              ? { href: data.writeup, label: "Write-up" }
-              : data.demo && data.repo
-                ? { href: data.repo, label: "GitHub" }
+                ? { href: data.repo, label: "github", external: true }
                 : null;
           return (
             <li class="pcard">
               <h3 class="pcard__name">{data.name}</h3>
               <div class="pcard__desc"><Content /></div>
               <p class="pcard__stack">{data.stack.join(" · ")}</p>
-              {(primary || secondary) && (
+              {primary && (
                 <div class="pcard__links">
-                  {primary && (
-                    <a
-                      class="plink plink--primary pcard__stretch"
-                      href={primary.href}
-                      target={primary.external ? "_blank" : undefined}
-                      rel={primary.external ? "noopener" : undefined}
-                    >
-                      {primary.label}{primary.external && <span class="arw" aria-hidden="true">↗</span>}
-                    </a>
-                  )}
-                  {secondary && (
-                    <a class="plink" href={secondary.href} target="_blank" rel="noopener">{secondary.label}</a>
-                  )}
+                  <a
+                    class="plink pcard__stretch"
+                    href={primary.href}
+                    target={primary.external ? "_blank" : undefined}
+                    rel={primary.external ? "noopener" : undefined}
+                  >
+                    {primary.label}<span class="arw" aria-hidden="true">{primary.external ? " ↗" : " →"}</span>
+                  </a>
                 </div>
               )}
             </li>
           );
         })}
       </ul>
-      {totalProjects > projR.length && (
-        <a class="seeall" href="/projects">
-          See all {totalProjects} projects<span class="arw" aria-hidden="true">→</span>
-        </a>
-      )}
+      <a class="seeall" href="/projects">
+        all projects<span class="arw" aria-hidden="true"> →</span>
+      </a>
     </section>
 
     <section id="education" class="block" style="--acc:var(--acc-education)">
@@ -354,17 +340,17 @@ const icons = {
   }
   .pcard:hover { border-color: var(--acc, var(--green)); transform: translateY(-3px); }
   .pcard__name { font-size: var(--step-1); font-weight: 700; color: var(--bright); }
-  .pcard__desc :global(p) { color: var(--muted); font-size: var(--step--1); line-height: 1.6; }
-  .pcard__stack { font-family: var(--font-mono); font-size: var(--step--2); color: var(--faint); margin-top: var(--space-2xs); }
+  .pcard__desc :global(p) { color: var(--muted); font-size: var(--step-0); line-height: 1.6; }
+  .pcard__stack { font-family: var(--font-mono); font-size: 0.72rem; color: var(--faint); margin-top: var(--space-2xs); }
   .pcard__links { display: flex; gap: var(--space-s); margin-top: auto; padding-top: var(--space-s); }
   .plink {
     display: inline-flex; align-items: center; gap: 0.3rem;
-    font-size: var(--step--1); font-weight: 600; color: var(--muted);
+    font-family: var(--font-mono); font-size: var(--step--1); font-weight: 500;
+    color: var(--acc, var(--green));
     transition: color var(--dur-fast);
   }
-  .plink:hover { text-decoration: underline; text-underline-offset: 3px; color: var(--acc, var(--green)); }
-  .plink--primary { color: var(--acc, var(--green)); }
-  .plink .arw { font-size: 0.8em; }
+  .plink:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .plink .arw { font-size: 0.85em; }
   .pcard__stretch::after { content: ""; position: absolute; inset: 0; z-index: 1; }
   .pcard__links .plink:not(.pcard__stretch) { position: relative; z-index: 2; }
   @media (hover: none) { .pcard:hover { transform: none; } }

@@ -7,4 +7,4 @@ featured: true
 draft: false
 ---
 
-Distributed workflow orchestration over Redis Streams
+A distributed workflow orchestration over Redis Streams

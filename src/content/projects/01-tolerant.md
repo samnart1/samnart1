@@ -9,4 +9,4 @@ order: 1
 draft: false
 ---
 
-What circuit breakers actually cost, measured over 72 hours.
+MSc Thesis: Analyzing performance and energy consequences of circuit breakers.

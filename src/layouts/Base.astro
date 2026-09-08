@@ -37,5 +37,17 @@ const {
       .skip { position: absolute; left: -9999px; top: 0; z-index: 100; padding: .5rem 1rem; background: var(--green); color: var(--bg); }
       .skip:focus { left: 0; }
     </style>
+
+    <script is:inline>
+      // For the curious who open devtools.
+      console.log(
+        "%c◆ hey, you opened the console.",
+        "color:#9ece6a;font-family:monospace;font-size:13px;font-weight:bold"
+      );
+      console.log(
+        "%cif you're reading this, you're my kind of person.\nbuilt from scratch with astro. say hi → github.com/samnart1",
+        "color:#a1a1aa;font-family:monospace;font-size:12px;line-height:1.6"
+      );
+    </script>
   </body>
 </html>

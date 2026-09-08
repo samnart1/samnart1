@@ -7,4 +7,4 @@ featured: true
 draft: false
 ---
 
-An LSM-tree storage engine, built from scratch.
+An LSM-tree storage engine built from scratch.

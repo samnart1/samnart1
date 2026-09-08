@@ -18,7 +18,7 @@ const { name, home = "/", hint = false, back } = Astro.props;
     <span class="kbdhint" aria-hidden="true"><kbd>j</kbd><kbd>k</kbd> to navigate</span>
   )}
 
-  {back && <a class="back" href={back.href}>{back.label}</a>}
+  {back && <a class="back" href={back.href}><span class="back__arw" aria-hidden="true">←</span> {back.label}</a>}
 </header>
 
 <style>
@@ -50,11 +50,15 @@ const { name, home = "/", hint = false, back } = Astro.props;
   }
 
   .back {
+    display: inline-flex; align-items: center; gap: 0.35rem;
     font-family: var(--font-mono);
     font-size: var(--step--1);
     color: var(--muted);
+    transition: color var(--dur-fast, 150ms);
   }
-  .back:hover { color: var(--bright); }
+  .back:hover { color: var(--bright); text-decoration: none; }
+  .back__arw { transition: transform var(--dur-fast, 150ms); }
+  .back:hover .back__arw { transform: translateX(-2px); }
 
   .kbdhint {
     display: flex;

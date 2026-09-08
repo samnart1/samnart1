@@ -1,7 +1,7 @@
 ---
 school: "Achimota Senior High School"
-program: "General Science"
-period: "Accra, Ghana"
+program: "General Science, Accra, Ghana"
+period: "Sep 2015 - May 2018"
 order: 3
 draft: false
 ---

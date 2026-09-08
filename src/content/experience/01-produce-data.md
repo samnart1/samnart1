@@ -2,7 +2,7 @@
 role: "Software Engineer"
 org: "Fruit-Service GmbH"
 location: "Bolzano, Italy"
-period: "Apr 2025 to Aug 2025"
+period: "Apr 2026 to Aug 2026"
 order: 1
 draft: false
 ---

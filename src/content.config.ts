@@ -84,4 +84,35 @@ const tech = defineCollection({
   }),
 });
 
-export const collections = { profile, about, experience, education, projects, tech };
+/* LEARNING — one YAML per language (meta), plus weekly log entries. */
+const languages = defineCollection({
+  loader: glob({ pattern: "**/_meta.yaml", base: "src/content/learning" }),
+  schema: z.object({
+    lang: z.string(),           // "German"
+    native: z.string(),         // "Deutsch"
+    flag: z.string(),           // emoji
+    from: z.string(),           // "A0"
+    to: z.string(),             // "B1-"
+    started: z.string(),        // "Sep 2026"
+    accent: z.string(),         // hex
+    status: z.enum(["active", "paused", "planned", "done"]).default("planned"),
+    order: z.number().default(99),
+    tagline: z.string().optional(),
+  }),
+});
+
+const weeks = defineCollection({
+  loader: glob({ pattern: "**/week-*.md", base: "src/content/learning" }),
+  schema: z.object({
+    lang: z.string(),           // "german" (matches folder)
+    week: z.number(),
+    dates: z.string().optional(),   // "Sep 1 — 7"
+    level: z.string().optional(),   // "pushing into A1"
+    emoji: z.string().optional(),   // milestone emoji
+    words: z.array(z.string()).default([]),  // new words/phrases
+    hours: z.number().optional(),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { profile, about, experience, education, projects, tech, languages, weeks };

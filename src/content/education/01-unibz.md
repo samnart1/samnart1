@@ -1,7 +1,7 @@
 ---
 school: "Free University of Bozen-Bolzano"
-program: "MSc Software Engineering"
-period: "Bolzano, Italy"
+program: "MSc Software Engineering, Bolzano, Italy"
+period: "Sep 2023 - Oct 2026"
 order: 1
 draft: false
 ---

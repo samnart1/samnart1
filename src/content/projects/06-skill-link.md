@@ -7,4 +7,4 @@ featured: true
 draft: false
 ---
 
-A clean Go REST API, done right 
+A platform for connecting with mentors and like-skilled peers.

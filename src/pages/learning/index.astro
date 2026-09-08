@@ -1,0 +1,100 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import Topbar from "../../components/Topbar.astro";
+
+const name = "Samuel Tettey-Nartey";
+
+const langs = (await getCollection("languages")).sort(
+  (a, b) => a.data.order - b.data.order
+);
+const allWeeks = await getCollection("weeks", (e) => !e.data.draft);
+
+// levels for the progress bar
+const LEVELS = ["A0", "A1", "A2", "B1-", "B1", "B2", "C1"];
+function progress(from: string, to: string, weeksDone: number) {
+  const fi = Math.max(0, LEVELS.indexOf(from));
+  const ti = Math.max(fi + 1, LEVELS.indexOf(to.replace("B1-", "B1-")));
+  // crude: assume each level ~2 weeks; cap at target
+  const span = Math.max(1, ti - fi);
+  const pct = Math.min(100, (weeksDone / (span * 2)) * 100);
+  return Math.round(pct);
+}
+---
+
+<Base title={`Learning — ${name}`} description="Languages I'm learning, documented week by week." name={name}>
+  <Topbar name={name} back={{ href: "/", label: "home" }} />
+
+  <main class="doc">
+    <h1 class="title"># learning</h1>
+    <p class="intro">Languages, documented as I go. Currently deep in German; more to come.</p>
+
+    <ul class="langs" role="list">
+      {langs.map((l) => {
+        const weeksDone = allWeeks.filter((w) => w.data.lang === l.id.split("/")[0]).length;
+        const pct = progress(l.data.from, l.data.to, weeksDone);
+        return (
+          <li class="lang" style={`--accent:${l.data.accent}`}>
+            <a class="lang__link" href={`/learning/${l.id.split("/")[0]}`}>
+              <div class="lang__top">
+                <span class="lang__flag">{l.data.flag}</span>
+                <div>
+                  <h2 class="lang__name">{l.data.lang} <span class="lang__native">· {l.data.native}</span></h2>
+                  {l.data.tagline && <p class="lang__tag">{l.data.tagline}</p>}
+                </div>
+                <span class:list={["lang__status", `is-${l.data.status}`]}>{l.data.status}</span>
+              </div>
+              <div class="bar" role="img" aria-label={`${pct}% toward ${l.data.to}`}>
+                <div class="bar__fill" style={`width:${pct}%`}></div>
+                <span class="bar__from">{l.data.from}</span>
+                <span class="bar__to">{l.data.to}</span>
+              </div>
+              <p class="lang__meta">{weeksDone} {weeksDone === 1 ? "week" : "weeks"} logged · since {l.data.started}</p>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </main>
+</Base>
+
+<style>
+  .doc { max-width: 44rem; margin-inline: auto; padding: 7rem var(--space-m) var(--space-2xl); }
+  .title { font-family: var(--font-pixel); font-size: var(--step-2); color: var(--green); font-weight: 500; }
+  .intro { color: var(--muted); margin-top: var(--space-s); max-width: 52ch; }
+
+  .langs { display: flex; flex-direction: column; gap: var(--space-m); margin-top: var(--space-xl); }
+  .lang {
+    border: 1px solid var(--line); border-radius: 14px; background: var(--bg-2);
+    transition: border-color var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
+  }
+  .lang:hover { border-color: color-mix(in oklab, var(--accent) 55%, var(--line)); transform: translateY(-2px); }
+  .lang__link { display: block; padding: var(--space-m); }
+  .lang__link:hover { text-decoration: none; }
+
+  .lang__top { display: flex; align-items: flex-start; gap: var(--space-s); }
+  .lang__flag { font-size: 2rem; line-height: 1; }
+  .lang__name { font-size: var(--step-1); font-weight: 700; color: var(--bright); }
+  .lang__native { color: var(--faint); font-weight: 400; font-size: 0.85em; }
+  .lang__tag { color: var(--muted); font-size: var(--step--1); margin-top: 0.15rem; }
+  .lang__status {
+    margin-left: auto; flex: none; font-family: var(--font-mono); font-size: var(--step--2);
+    padding: 0.2rem 0.55rem; border-radius: 999px; border: 1px solid var(--line); color: var(--faint);
+    text-transform: lowercase;
+  }
+  .lang__status.is-active { color: var(--accent); border-color: color-mix(in oklab, var(--accent) 50%, var(--line)); }
+
+  .bar {
+    position: relative; height: 8px; border-radius: 999px;
+    background: var(--bg-sunken, #060607); margin-top: var(--space-m); overflow: hidden;
+  }
+  .bar__fill {
+    height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, color-mix(in oklab, var(--accent) 70%, transparent), var(--accent));
+  }
+  .bar__from, .bar__to {
+    position: absolute; top: 12px; font-family: var(--font-mono); font-size: var(--step--2); color: var(--faint);
+  }
+  .bar__from { left: 0; } .bar__to { right: 0; }
+  .lang__meta { margin-top: calc(var(--space-m) + 0.6rem); font-family: var(--font-mono); font-size: var(--step--2); color: var(--faint); }
+</style>

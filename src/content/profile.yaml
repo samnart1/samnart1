@@ -3,15 +3,15 @@ profile:
   role: "Backend and distributed systems engineer"
   tagline: "MSc Software Engineering at unibz"
   location: "Bolzano, Italy"
-  availability: "Open to backend and distributed systems roles"
-  # Drop a CV at public/cv.pdf and uncomment to show the chip.
+  # availability: "Open to backend and distributed systems roles"
+  # cv location - public/cv.pdf
   # cv: "/cv.pdf"
   socials:
     - label: "GitHub"
       href: "https://github.com/samnart1"
       icon: "github"
     - label: "Email"
-      href: "mailto:hello@samnart.website"
+      href: "mailto:stetteynartey@unibz.it"
       icon: "mail"
     - label: "LinkedIn"
       href: "https://www.linkedin.com/in/samuel-tettey-nartey-17740b165/"
