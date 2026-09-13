@@ -1,5 +1,5 @@
 ---
-name: "CONDUCTOR"
+name: "conductor"
 stack: ["Python", "Redis Streams"]
 repo: "https://github.com/samnart1/conductor"  # TODO: confirm
 order: 4

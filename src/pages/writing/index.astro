@@ -1,0 +1,80 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import Topbar from "../../components/Topbar.astro";
+
+const name = "Samuel Tettey-Nartey";
+
+const posts = (await getCollection("writing", (e) => !e.data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+const fmt = (d: Date) =>
+  d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+
+// Articles that are custom .astro pages (not markdown collection entries).
+const customPosts = [
+  {
+    href: "/writing/tolerant",
+    title: "Tolerant",
+    date: new Date("2026-09-01"),
+    description: "What a circuit breaker actually costs you: 150 runs across a ten-condition factorial, measured in latency, availability and energy.",
+    tags: ["circuit-breakers", "resilience", "energy"],
+  },
+];
+
+// Merge markdown + custom, newest first.
+const all = [
+  ...posts.map((p) => ({
+    href: `/writing/${p.id.replace(/\.md$/, "")}`,
+    title: p.data.title,
+    date: p.data.pubDate,
+    description: p.data.description,
+    tags: p.data.tags,
+  })),
+  ...customPosts,
+].sort((a, b) => b.date.valueOf() - a.date.valueOf());
+---
+
+<Base title={`Writing — ${name}`} description="Notes on systems, concurrency, and building things properly." name={name}>
+  <Topbar name={name} back={{ href: "/", label: "home" }} />
+
+  <main class="doc">
+    <h1 class="title"># writing</h1>
+    <p class="intro">Notes on the things I build and how I reason about them.</p>
+
+    <ul class="posts" role="list">
+      {all.map((p) => (
+        <li class="post">
+          <a class="post__link" href={p.href}>
+            <div class="post__row">
+              <h2 class="post__title">{p.title}</h2>
+              <time class="post__date">{fmt(p.date)}</time>
+            </div>
+            <p class="post__desc">{p.description}</p>
+            {p.tags.length > 0 && (
+              <p class="post__tags">{p.tags.map((t) => <span class="tag">{t}</span>)}</p>
+            )}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </main>
+</Base>
+
+<style>
+  .doc { max-width: 44rem; margin-inline: auto; padding: 7rem var(--space-m) var(--space-2xl); }
+  .title { font-family: var(--font-pixel); font-size: var(--step-2); color: var(--green); font-weight: 500; }
+  .intro { color: var(--muted); margin-top: var(--space-s); }
+
+  .posts { display: flex; flex-direction: column; gap: var(--space-l); margin-top: var(--space-xl); }
+  .post__link { display: block; }
+  .post__link:hover { text-decoration: none; }
+  .post__row { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-s); }
+  .post__title { font-size: var(--step-1); font-weight: 700; color: var(--bright); transition: color var(--dur-fast, 150ms); }
+  .post__link:hover .post__title { color: var(--green); }
+  .post__date { flex: none; font-family: var(--font-mono); font-size: var(--step--2); color: var(--faint); }
+  .post__desc { color: var(--muted); font-size: var(--step-0); margin-top: 0.3rem; line-height: 1.6; }
+  .post__tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: var(--space-2xs); }
+  .tag { font-family: var(--font-mono); font-size: var(--step--2); color: var(--faint); }
+  .tag::before { content: "#"; opacity: 0.5; }
+</style>

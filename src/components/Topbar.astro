@@ -4,8 +4,9 @@ interface Props {
   home?: string;
   hint?: boolean;
   back?: { href: string; label: string };
+  note?: string;
 }
-const { name, home = "/", hint = false, back } = Astro.props;
+const { name, home = "/", hint = false, back, note } = Astro.props;
 ---
 
 <header class="topbar">
@@ -19,6 +20,8 @@ const { name, home = "/", hint = false, back } = Astro.props;
   )}
 
   {back && <a class="back" href={back.href}><span class="back__arw" aria-hidden="true">←</span> {back.label}</a>}
+
+  {note && <span class="note">{note}</span>}
 </header>
 
 <style>
@@ -78,8 +81,21 @@ const { name, home = "/", hint = false, back } = Astro.props;
     color: var(--muted);
   }
 
+  .note {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--faint);
+    letter-spacing: 0.01em;
+    font-family: var(--font-pixel);
+    font-size: 0.95rem;
+    color: var(--bright);
+    letter-spacing: 0.02em;
+  }
+
+
   @media (max-width: 40rem) {
     .kbdhint { display: none; }
+    .note { display: none; }
     .topbar { padding: 0.6rem var(--space-s); }
     .brand__name { font-size: 0.8rem; }
   }

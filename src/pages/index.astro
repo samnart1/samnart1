@@ -4,6 +4,17 @@ import Base from "../layouts/Base.astro";
 import Topbar from "../components/Topbar.astro";
 import ToolIcon from "../components/ToolIcon.astro";
 
+// Last updated: pulled from the latest git commit at build time.
+// Falls back to the current month if git isn't available.
+let lastUpdated = "";
+try {
+  const { execSync } = await import("node:child_process");
+  lastUpdated = execSync("git log -1 --format=%cd --date=format:'%b %Y'")
+    .toString().trim().replace(/'/g, "");
+} catch {
+  lastUpdated = new Date().toLocaleDateString("en-US", { month: "short", year: "numeric" });
+}
+
 const p = (await getEntry("profile", "profile"))!.data;
 
 const aboutEntry = await getEntry("about", "index");
@@ -41,7 +52,7 @@ const icons = {
 ---
 
 <Base title={`${p.name} · Software Engineer`} description={description} name={p.name}>
-  <Topbar name={p.name} home="#top" />
+  <Topbar name={p.name} home="#top" note={`last updated · ${lastUpdated}`} />
 
   <div class="deck">
     <section class="block intro" id="top">
@@ -133,9 +144,15 @@ const icons = {
           );
         })}
       </ul>
-      <a class="seeall" href="/projects">
-        all projects<span class="arw" aria-hidden="true"> →</span>
-      </a>
+      <div class="all">
+	<a class="seeall" href="/projects">
+        	all projects<span class="arw" aria-hidden="true"> →</span>
+      	</a>
+	<a class="seeall" href="/writing">
+        	all writings<span class="arw" aria-hidden="true"> →</span>
+      	</a>
+      </div>
+      
     </section>
 
     <section id="education" class="block" style="--acc:var(--acc-education)">
@@ -313,6 +330,14 @@ const icons = {
   .entry__desc :global(p) { color: var(--muted); font-size: var(--step--1); max-width: 78ch; line-height: 1.6; }
 
   /* ===== PROJECT CARDS ===== */
+  .all {
+	  display: flex;
+	  justify-content: space-between;
+	  width: 350px !important;
+	  margin-left: auto !important;
+	  margin-right: auto !important;
+	  /* border: 1px solid red; */
+  }
   .seeall {
     display: inline-flex; align-items: center; gap: 0.4rem;
     margin-top: var(--space-l);

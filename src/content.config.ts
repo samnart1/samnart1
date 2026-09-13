@@ -115,4 +115,16 @@ const weeks = defineCollection({
   }),
 });
 
-export const collections = { profile, about, experience, education, projects, tech, languages, weeks };
+const writing = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "src/content/writing" }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    pubDate: z.coerce.date(),
+    tags: z.array(z.string()).default([]),
+    repo: z.string().url().optional(),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { profile, about, experience, education, projects, tech, languages, weeks, writing };

@@ -1,5 +1,5 @@
 ---
-name: "Scorepact"
+name: "scorepact"
 stack: ["Python", "FastAPI", "React", "PostgreSQL"]
 repo: "https://github.com/samnart1/scorepact"  # TODO: confirm
 order: 3

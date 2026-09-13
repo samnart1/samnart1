@@ -1,5 +1,5 @@
 ---
-name: "Metron"
+name: "metron"
 stack: ["Python", "FastAPI", "PostgreSQL", "React Native"]
 repo: "https://github.com/samnart1/metron"   # TODO: confirm/private
 order: 5

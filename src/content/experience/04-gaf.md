@@ -7,5 +7,5 @@ order: 4
 draft: false
 ---
 
-Maintained networks, hardware, and end-user systems in a security-sensitive military
-environment.
+<!-- Maintained networks, hardware, and end-user systems in a security-sensitive military -->
+<!-- environment. -->

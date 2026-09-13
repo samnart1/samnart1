@@ -2,8 +2,13 @@
 import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 
-// Custom domain (CNAME in public/). Repo → domain deploy already wired.
 export default defineConfig({
   site: "https://samnart.website",
   integrations: [sitemap()],
+  redirects: {
+    "/projects/tolerant": "/writing/tolerant",
+  },
+  markdown: {
+    shikiConfig: { theme: "tokyo-night", wrap: false },
+  },
 });
