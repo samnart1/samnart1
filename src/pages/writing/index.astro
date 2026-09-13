@@ -11,28 +11,6 @@ const posts = (await getCollection("writing", (e) => !e.data.draft)).sort(
 const fmt = (d: Date) =>
   d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
 
-// Articles that are custom .astro pages (not markdown collection entries).
-const customPosts = [
-  {
-    href: "/writing/tolerant",
-    title: "Tolerant",
-    date: new Date("2026-09-01"),
-    description: "What a circuit breaker actually costs you: 150 runs across a ten-condition factorial, measured in latency, availability and energy.",
-    tags: ["circuit-breakers", "resilience", "energy"],
-  },
-];
-
-// Merge markdown + custom, newest first.
-const all = [
-  ...posts.map((p) => ({
-    href: `/writing/${p.id.replace(/\.md$/, "")}`,
-    title: p.data.title,
-    date: p.data.pubDate,
-    description: p.data.description,
-    tags: p.data.tags,
-  })),
-  ...customPosts,
-].sort((a, b) => b.date.valueOf() - a.date.valueOf());
 ---
 
 <Base title={`Writing — ${name}`} description="Notes on systems, concurrency, and building things properly." name={name}>
@@ -43,16 +21,16 @@ const all = [
     <p class="intro">Notes on the things I build and how I reason about them.</p>
 
     <ul class="posts" role="list">
-      {all.map((p) => (
+      {posts.map((p) => (
         <li class="post">
-          <a class="post__link" href={p.href}>
+          <a class="post__link" href={`/writing/${p.id.replace(/\.md$/, "")}`}>
             <div class="post__row">
-              <h2 class="post__title">{p.title}</h2>
-              <time class="post__date">{fmt(p.date)}</time>
+              <h2 class="post__title">{p.data.title}</h2>
+              <time class="post__date">{fmt(p.data.pubDate)}</time>
             </div>
-            <p class="post__desc">{p.description}</p>
-            {p.tags.length > 0 && (
-              <p class="post__tags">{p.tags.map((t) => <span class="tag">{t}</span>)}</p>
+            <p class="post__desc">{p.data.description}</p>
+            {p.data.tags.length > 0 && (
+              <p class="post__tags">{p.data.tags.map((t) => <span class="tag">{t}</span>)}</p>
             )}
           </a>
         </li>

@@ -123,6 +123,7 @@ const writing = defineCollection({
     pubDate: z.coerce.date(),
     tags: z.array(z.string()).default([]),
     repo: z.string().url().optional(),
+    lab: z.boolean().default(false),
     draft: z.boolean().default(false),
   }),
 });
