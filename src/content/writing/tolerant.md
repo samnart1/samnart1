@@ -1,6 +1,6 @@
 ---
 title: "Tolerant"
-description: "A ten-condition factorial experiment measuring what a circuit breaker costs in latency, availability and energy, across 300 runs on two machines."
+description: ""
 pubDate: 2026-09-01
 repo: "https://github.com/samnart1/tolerant"
 lab: true

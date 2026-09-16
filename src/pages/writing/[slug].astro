@@ -51,7 +51,7 @@ const fmt = (d: Date) =>
   .doc { max-width: 44rem; margin-inline: auto; padding: 7rem var(--space-m) var(--space-2xl); }
 
   .head { margin-bottom: var(--space-xl); }
-  .ptitle { font-size: var(--step-3); font-weight: 700; color: var(--bright); letter-spacing: -0.02em; line-height: 1.1; }
+  .ptitle { font-size: var(--step-3); font-weight: 700; color: var(--bright); letter-spacing: -0.02em; line-height: 1.1; margin-top: 50px; }
   .meta { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-top: var(--space-s); font-family: var(--font-mono); font-size: var(--step--1); color: var(--faint); }
   .dot { opacity: 0.6; }
   .tag::before { content: "#"; opacity: 0.5; }
@@ -96,6 +96,7 @@ const fmt = (d: Date) =>
   .repo {
     display: inline-block; margin-top: var(--space-xl);
     font-family: var(--font-mono); font-size: var(--step--1); color: var(--green);
+	  margin-bottom: 40px;
   }
   .repo:hover { text-decoration: underline; text-underline-offset: 3px; }
 
